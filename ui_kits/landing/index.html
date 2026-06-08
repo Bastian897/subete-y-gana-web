@@ -1,0 +1,700 @@
+<!-- @dsCard group="Landing" viewport="1440x860" name="Landing Page" subtitle="One-page sorteo — hero, selección, confianza, footer" -->
+<!-- @startingPoint section="Landing" subtitle="One-page sorteo landing con hero, countdown y selector de participaciones" viewport="1440x860" -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Súbete y Gana — Chevrolet Silverado Z71</title>
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  input[type=number]{-moz-appearance:textfield}
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+
+  /* Confetti particles */
+  @keyframes confetti-fall {
+    0%  { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
+    100%{ transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    animation: confetti-fall linear infinite;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: reduce) { .confetti-piece { display: none; } }
+
+  /* Section reveals */
+  @keyframes reveal-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal { animation: reveal-up 0.6s var(--ease-ui, cubic-bezier(.22,.61,.36,1)) both; }
+
+  /* Smooth scrolling */
+  html { scroll-behavior: smooth; }
+
+  /* Nav glass */
+  .nav-glass {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(10,10,11,.8);
+    border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+
+  /* Gold glow pulse on CTA */
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 8px 28px rgba(212,175,55,.35), inset 0 1px 0 rgba(255,255,255,.25), inset 0 -2px 6px rgba(0,0,0,.5); }
+    50%       { box-shadow: 0 12px 40px rgba(212,175,55,.55), inset 0 1px 0 rgba(255,255,255,.25), inset 0 -2px 6px rgba(0,0,0,.5); }
+  }
+  .cta-pulse { animation: glow-pulse 2.4s ease-in-out infinite; }
+</style>
+</head>
+<body style="background:var(--bg-base);min-height:100vh;overflow-x:hidden">
+<div id="root"></div>
+<script type="text/babel">
+const DS = window.SBeteYGanaDesignSystem_9297b8;
+const { Button, Card, Badge, Countdown, ProgressBar, ParticipationSelector } = DS;
+
+/* ── Confetti ── */
+function Confetti() {
+  const pieces = React.useMemo(() => Array.from({length: 22}, (_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    delay: Math.random() * 6,
+    dur: 5 + Math.random() * 5,
+    color: ['#F5C842','#D4AF37','#FFF1B8','#FFFFFF','#B8860B','#FFE9A8'][Math.floor(Math.random()*6)],
+    size: 5 + Math.random() * 6,
+  })), []);
+
+  return (
+    <div style={{position:'absolute',inset:0,overflow:'hidden',pointerEvents:'none',zIndex:1}}>
+      {pieces.map(p => (
+        <div key={p.id} className="confetti-piece" style={{
+          left:`${p.left}%`,
+          top:'-10px',
+          width:p.size,
+          height:p.size,
+          background:p.color,
+          animationDuration:`${p.dur}s`,
+          animationDelay:`${p.delay}s`,
+          borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+        }}/>
+      ))}
+    </div>
+  );
+}
+
+/* ── Header ── */
+function Header({ onBuy }) {
+  return (
+    <header className="nav-glass" style={{
+      position:'fixed',top:0,left:0,right:0,zIndex:100,
+      padding:'0 var(--space-8)',
+      height:64,
+      display:'flex',alignItems:'center',justifyContent:'space-between',
+    }}>
+      <img src="../../assets/logo.jpg" alt="Súbete y Gana" style={{height:44,width:44,objectFit:'contain',borderRadius:6}}/>
+      <nav style={{display:'flex',gap:'var(--space-6)',alignItems:'center'}}>
+        <a href="#como" style={{color:'var(--silver-500)',textDecoration:'none',fontSize:'var(--fs-sm)',fontWeight:500,transition:'color .2s'}}>Cómo participar</a>
+        <a href="#premio" style={{color:'var(--silver-500)',textDecoration:'none',fontSize:'var(--fs-sm)',fontWeight:500}}>El premio</a>
+        <a href="#fondos" style={{color:'var(--silver-500)',textDecoration:'none',fontSize:'var(--fs-sm)',fontWeight:500}}>Fondos</a>
+      </nav>
+      <div style={{display:'flex',gap:'var(--space-3)',alignItems:'center'}}>
+        <Button variant="ghost" size="sm">Iniciar sesión</Button>
+        <Button variant="primary" size="sm" onClick={onBuy}>Participar</Button>
+      </div>
+    </header>
+  );
+}
+
+/* ── Hero ── */
+function Hero({ onBuy }) {
+  const drawDate = new Date(Date.now() + 18*86400000 + 7*3600000).toISOString();
+  return (
+    <section style={{
+      position:'relative',
+      minHeight:'100vh',
+      display:'flex',
+      flexDirection:'column',
+      alignItems:'center',
+      justifyContent:'center',
+      paddingTop:64,
+      overflow:'hidden',
+      textAlign:'center',
+    }}>
+      {/* Stage glow */}
+      <div style={{
+        position:'absolute',
+        inset:0,
+        background:'radial-gradient(60% 55% at 50% 30%, rgba(245,200,66,.16) 0%, transparent 70%)',
+        pointerEvents:'none',
+      }}/>
+      <Confetti/>
+
+      <div className="reveal" style={{position:'relative',zIndex:2,maxWidth:860,padding:'0 var(--space-6)'}}>
+        {/* Eyebrow */}
+        <div style={{display:'flex',gap:'var(--space-2)',justifyContent:'center',flexWrap:'wrap',marginBottom:'var(--space-6)'}}>
+          <Badge variant="trust">Sorteo ante notario</Badge>
+          <Badge variant="trust">Pago 100% seguro</Badge>
+          <Badge variant="neutral">Transmisión en vivo</Badge>
+        </div>
+
+        {/* Headline */}
+        <h1 style={{
+          fontFamily:'var(--font-display)',
+          fontSize:'var(--fs-display)',
+          fontWeight:800,
+          lineHeight:'var(--lh-display)',
+          marginBottom:'var(--space-4)',
+        }}>
+          <span style={{
+            background:'var(--grad-chrome)',
+            WebkitBackgroundClip:'text',
+            WebkitTextFillColor:'transparent',
+            backgroundClip:'text',
+            display:'block',
+          }}>Súbete a la</span>
+          <span style={{
+            background:'var(--grad-gold)',
+            WebkitBackgroundClip:'text',
+            WebkitTextFillColor:'transparent',
+            backgroundClip:'text',
+            display:'block',
+          }}>Silverado Z71</span>
+        </h1>
+
+        <p style={{
+          fontSize:'var(--fs-h3)',
+          color:'var(--silver-300)',
+          marginBottom:'var(--space-8)',
+          lineHeight:'var(--lh-body)',
+        }}>
+          Compra un fondo de pantalla exclusivo y obtén tu número único.<br/>
+          <strong style={{color:'var(--gold-400)'}}>Solo $3.000 CLP</strong> por participación.
+        </p>
+
+        {/* Prize visual placeholder */}
+        <div style={{
+          position:'relative',
+          width:'100%',
+          maxWidth:640,
+          margin:'0 auto var(--space-8)',
+          height:240,
+        }}>
+          {/* Blur halo */}
+          <div style={{
+            position:'absolute',
+            inset:'-20px',
+            background:'radial-gradient(ellipse 80% 60% at 50% 60%, rgba(212,175,55,.25) 0%, transparent 70%)',
+            filter:'blur(20px)',
+          }}/>
+          {/* Car placeholder */}
+          <div style={{
+            position:'relative',
+            width:'100%',
+            height:'100%',
+            background:'var(--bg-elevated)',
+            borderRadius:'var(--radius-lg)',
+            border:'1px solid rgba(255,255,255,.06)',
+            display:'flex',
+            flexDirection:'column',
+            alignItems:'center',
+            justifyContent:'center',
+            gap:8,
+            maskImage:'linear-gradient(180deg, #000 55%, transparent 100%)',
+            WebkitMaskImage:'linear-gradient(180deg, #000 55%, transparent 100%)',
+          }}>
+            <div style={{fontSize:64,opacity:.15}}>🚗</div>
+            <span style={{fontSize:'var(--fs-sm)',color:'var(--silver-700)'}}>[ Foto Chevrolet Silverado Z71 ]</span>
+            <span style={{fontSize:'var(--fs-xs)',color:'var(--silver-700)',opacity:.6}}>Reemplazar con imagen real del vehículo</span>
+          </div>
+        </div>
+
+        {/* Countdown */}
+        <div style={{marginBottom:'var(--space-8)'}}>
+          <div style={{
+            fontSize:'var(--fs-xs)',
+            fontWeight:600,
+            letterSpacing:'var(--ls-caps)',
+            textTransform:'uppercase',
+            color:'var(--silver-500)',
+            marginBottom:'var(--space-3)',
+          }}>
+            El sorteo cierra en
+          </div>
+          <div style={{display:'flex',justifyContent:'center'}}>
+            <Countdown targetDate={drawDate}/>
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div className="cta-pulse" style={{display:'inline-block',borderRadius:'var(--radius-pill)'}}>
+          <Button variant="primary" size="lg" onClick={onBuy}>
+            Participar ahora — $3.000 CLP
+          </Button>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div style={{
+        position:'relative',zIndex:2,
+        width:'100%',maxWidth:640,
+        marginTop:'var(--space-12)',
+        padding:'0 var(--space-6)',
+      }}>
+        <ProgressBar sold={3420} total={5000}/>
+      </div>
+    </section>
+  );
+}
+
+/* ── Steps ── */
+function HowItWorks() {
+  const steps = [
+    { num:'01', title:'Compra un fondo', desc:'Elige tu cantidad y paga de forma segura. Cada compra = un fondo de pantalla exclusivo para tu celular.' },
+    { num:'02', title:'Recibes tu número', desc:'Al confirmar el pago, se te asigna automáticamente un número único de participación.' },
+    { num:'03', title:'Sorteo ante notario', desc:'El sorteo se realiza en vivo con notario público. Transparente, verificable y 100% legítimo.' },
+  ];
+
+  return (
+    <section id="como" style={{
+      padding:'var(--space-24) var(--space-8)',
+      maxWidth:1100,margin:'0 auto',
+    }}>
+      <div style={{textAlign:'center',marginBottom:'var(--space-12)'}}>
+        <div style={{
+          fontSize:'var(--fs-xs)',fontWeight:600,letterSpacing:'var(--ls-caps)',
+          textTransform:'uppercase',color:'var(--gold-500)',marginBottom:'var(--space-3)',
+        }}>Proceso</div>
+        <h2 style={{
+          fontFamily:'var(--font-display)',fontSize:'var(--fs-h1)',fontWeight:800,
+          background:'var(--grad-gold)',WebkitBackgroundClip:'text',
+          WebkitTextFillColor:'transparent',backgroundClip:'text',
+        }}>Cómo participar</h2>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'var(--space-6)'}}>
+        {steps.map(s => (
+          <Card key={s.num} variant="default">
+            <div style={{
+              fontFamily:'var(--font-mono)',fontSize:'2.5rem',fontWeight:700,
+              background:'var(--grad-gold)',WebkitBackgroundClip:'text',
+              WebkitTextFillColor:'transparent',backgroundClip:'text',
+              marginBottom:'var(--space-4)',lineHeight:1,
+            }}>{s.num}</div>
+            <h3 style={{
+              fontFamily:'var(--font-display)',fontSize:'var(--fs-h3)',
+              fontWeight:700,color:'var(--silver-100)',marginBottom:'var(--space-2)',
+            }}>{s.title}</h3>
+            <p style={{fontSize:'var(--fs-sm)',color:'var(--silver-500)',lineHeight:'var(--lh-body)'}}>{s.desc}</p>
+          </Card>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── Participation section ── */
+function ParticipationSection({ onBuy }) {
+  const [qty, setQty] = React.useState(5);
+  return (
+    <section style={{
+      padding:'var(--space-24) var(--space-8)',
+      background:'var(--bg-elevated)',
+      borderTop:'1px solid rgba(255,255,255,.05)',
+      borderBottom:'1px solid rgba(255,255,255,.05)',
+    }}>
+      <div style={{maxWidth:620,margin:'0 auto',textAlign:'center'}}>
+        <div style={{
+          fontSize:'var(--fs-xs)',fontWeight:600,letterSpacing:'var(--ls-caps)',
+          textTransform:'uppercase',color:'var(--gold-500)',marginBottom:'var(--space-3)',
+        }}>Participar</div>
+        <h2 style={{
+          fontFamily:'var(--font-display)',fontSize:'var(--fs-h1)',fontWeight:800,
+          color:'var(--silver-100)',marginBottom:'var(--space-4)',lineHeight:'var(--lh-heading)',
+        }}>Elige tus participaciones</h2>
+        <p style={{fontSize:'var(--fs-sm)',color:'var(--silver-500)',marginBottom:'var(--space-8)'}}>
+          Más participaciones = más oportunidades de ganar la Silverado.
+        </p>
+        <Card variant="premium">
+          <div style={{padding:'var(--space-6)'}}>
+            <ParticipationSelector onChange={setQty}/>
+            <div style={{marginTop:'var(--space-6)'}}>
+              <Button variant="primary" fullWidth size="lg" onClick={onBuy}>
+                Comprar {qty} participaci{qty===1?'ón':'ones'}
+              </Button>
+            </div>
+            {/* Email notice */}
+            <div style={{
+              marginTop:'var(--space-4)',
+              padding:'var(--space-3) var(--space-4)',
+              background:'rgba(255,176,32,.08)',
+              border:'1px solid rgba(255,176,32,.2)',
+              borderRadius:'var(--radius-sm)',
+              fontSize:'var(--fs-xs)',
+              color:'var(--warning)',
+              textAlign:'left',
+              lineHeight:1.5,
+            }}>
+              Los correos de confirmación pueden tardar unos minutos. Tu participación queda registrada inmediatamente tras el pago.
+            </div>
+          </div>
+        </Card>
+      </div>
+    </section>
+  );
+}
+
+/* ── Prize details ── */
+function PrizeSection() {
+  const specs = [
+    ['Motor','V8 5.3L EcoTec3'],['Tracción','4x4 con Autotrac'],['Potencia','355 hp / 383 lb-ft'],
+    ['Transmisión','Automática 8 vel.'],['Suspensión','Z71 Off-Road'],['Avalúo','$28.000.000 CLP'],
+  ];
+  return (
+    <section id="premio" style={{padding:'var(--space-24) var(--space-8)',maxWidth:1100,margin:'0 auto'}}>
+      <div style={{textAlign:'center',marginBottom:'var(--space-12)'}}>
+        <div style={{
+          fontSize:'var(--fs-xs)',fontWeight:600,letterSpacing:'var(--ls-caps)',
+          textTransform:'uppercase',color:'var(--gold-500)',marginBottom:'var(--space-3)',
+        }}>Premio</div>
+        <h2 style={{
+          fontFamily:'var(--font-display)',fontSize:'var(--fs-h1)',fontWeight:800,
+          color:'var(--silver-100)',lineHeight:'var(--lh-heading)',
+        }}>Chevrolet Silverado <span style={{
+          background:'var(--grad-gold)',WebkitBackgroundClip:'text',
+          WebkitTextFillColor:'transparent',backgroundClip:'text',
+        }}>Z71</span></h2>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'var(--space-8)',alignItems:'start'}}>
+        {/* Image placeholder */}
+        <div style={{
+          background:'var(--bg-elevated)',
+          borderRadius:'var(--radius-lg)',
+          border:'1px solid rgba(255,255,255,.06)',
+          height:300,
+          display:'flex',flexDirection:'column',
+          alignItems:'center',justifyContent:'center',
+          gap:8,
+          position:'relative',
+          overflow:'hidden',
+        }}>
+          <div style={{
+            position:'absolute',inset:0,
+            background:'radial-gradient(ellipse 70% 50% at 50% 50%, rgba(212,175,55,.12) 0%, transparent 70%)',
+          }}/>
+          <span style={{fontSize:72,opacity:.12}}>🚗</span>
+          <span style={{fontSize:'var(--fs-sm)',color:'var(--silver-700)'}}>[ Galería Silverado Z71 ]</span>
+        </div>
+        {/* Specs */}
+        <div style={{display:'flex',flexDirection:'column',gap:'var(--space-3)'}}>
+          {specs.map(([k,v]) => (
+            <div key={k} style={{
+              display:'flex',justifyContent:'space-between',alignItems:'center',
+              padding:'var(--space-3) var(--space-4)',
+              background:'var(--bg-elevated)',
+              borderRadius:'var(--radius-sm)',
+              border:'1px solid rgba(255,255,255,.06)',
+            }}>
+              <span style={{fontSize:'var(--fs-sm)',color:'var(--silver-500)',fontWeight:500}}>{k}</span>
+              <span style={{fontSize:'var(--fs-sm)',color:'var(--silver-100)',fontWeight:600,textAlign:'right'}}>{v}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Wallpapers ── */
+function WallpapersSection() {
+  return (
+    <section id="fondos" style={{
+      padding:'var(--space-24) var(--space-8)',
+      background:'var(--bg-elevated)',
+      borderTop:'1px solid rgba(255,255,255,.05)',
+    }}>
+      <div style={{maxWidth:1100,margin:'0 auto'}}>
+        <div style={{textAlign:'center',marginBottom:'var(--space-12)'}}>
+          <div style={{
+            fontSize:'var(--fs-xs)',fontWeight:600,letterSpacing:'var(--ls-caps)',
+            textTransform:'uppercase',color:'var(--gold-500)',marginBottom:'var(--space-3)',
+          }}>Lo que recibes</div>
+          <h2 style={{
+            fontFamily:'var(--font-display)',fontSize:'var(--fs-h1)',fontWeight:800,color:'var(--silver-100)',
+          }}>Fondos de pantalla exclusivos</h2>
+          <p style={{fontSize:'var(--fs-sm)',color:'var(--silver-500)',marginTop:'var(--space-4)'}}>
+            Con cada participación recibes un fondo premium para tu celular. Diseños únicos, no disponibles en ningún otro lugar.
+          </p>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'var(--space-4)'}}>
+          {[1,2,3,4].map(i => (
+            <div key={i} style={{
+              aspectRatio:'9/19.5',
+              background:`linear-gradient(160deg, var(--bg-surface) 0%, var(--bg-elevated) 100%)`,
+              borderRadius:'var(--radius-md)',
+              border:'1px solid rgba(255,255,255,.06)',
+              display:'flex',flexDirection:'column',
+              alignItems:'center',justifyContent:'center',
+              gap:8,
+              position:'relative',
+              overflow:'hidden',
+            }}>
+              <div style={{
+                position:'absolute',inset:0,
+                background:'radial-gradient(ellipse 60% 40% at 50% 40%, rgba(212,175,55,.08) 0%, transparent 70%)',
+              }}/>
+              <span style={{fontSize:'var(--fs-xs)',color:'var(--silver-700)',position:'relative'}}>
+                Wallpaper {String(i).padStart(2,'0')}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Trust & FAQ ── */
+function TrustSection() {
+  const [openFaq, setOpenFaq] = React.useState(null);
+  const faqs = [
+    { q:'¿Cómo sé que el sorteo es legítimo?', a:'El sorteo se realiza ante notario público y se transmite en vivo. Todas las participaciones son verificables.' },
+    { q:'¿Cuándo me llega mi número de participación?', a:'Tu número se asigna automáticamente al confirmar el pago. También te llega por correo (puede tardar unos minutos).' },
+    { q:'¿Qué métodos de pago aceptan?', a:'Aceptamos Webpay, Flow y MercadoPago. Todos los pagos son procesados de forma segura.' },
+    { q:'¿Puedo comprar más de una participación?', a:'Sí, puedes comprar hasta 500 participaciones en una sola transacción para maximizar tus chances.' },
+  ];
+
+  return (
+    <section style={{padding:'var(--space-24) var(--space-8)',maxWidth:860,margin:'0 auto'}}>
+      {/* Trust badges */}
+      <div style={{
+        display:'flex',gap:'var(--space-4)',justifyContent:'center',
+        flexWrap:'wrap',marginBottom:'var(--space-16)',
+      }}>
+        {['Sorteo ante notario','Pago 100% seguro','Transmisión en vivo','Número único garantizado'].map(b => (
+          <Badge key={b} variant="trust">{b}</Badge>
+        ))}
+      </div>
+
+      {/* FAQ */}
+      <div style={{textAlign:'center',marginBottom:'var(--space-8)'}}>
+        <h2 style={{
+          fontFamily:'var(--font-display)',fontSize:'var(--fs-h2)',fontWeight:800,
+          color:'var(--silver-100)',
+        }}>Preguntas frecuentes</h2>
+      </div>
+      <div style={{display:'flex',flexDirection:'column',gap:'var(--space-3)'}}>
+        {faqs.map((f,i) => (
+          <div key={i} style={{
+            background:'var(--bg-elevated)',
+            border:'1px solid rgba(255,255,255,.06)',
+            borderRadius:'var(--radius-md)',
+            overflow:'hidden',
+            cursor:'pointer',
+          }} onClick={()=>setOpenFaq(openFaq===i?null:i)}>
+            <div style={{
+              padding:'var(--space-4) var(--space-6)',
+              display:'flex',justifyContent:'space-between',alignItems:'center',
+              fontWeight:600,color:'var(--silver-100)',fontSize:'var(--fs-sm)',
+            }}>
+              {f.q}
+              <span style={{
+                color:'var(--gold-500)',fontSize:'1.2rem',fontWeight:300,
+                transform:openFaq===i?'rotate(45deg)':'none',
+                transition:'transform .2s',flexShrink:0,marginLeft:12,
+              }}>+</span>
+            </div>
+            {openFaq===i && (
+              <div style={{
+                padding:'0 var(--space-6) var(--space-4)',
+                fontSize:'var(--fs-sm)',color:'var(--silver-500)',lineHeight:'var(--lh-body)',
+                borderTop:'1px solid rgba(255,255,255,.04)',
+              }}>{f.a}</div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── Footer ── */
+function Footer() {
+  return (
+    <footer style={{
+      borderTop:'1px solid rgba(255,255,255,.06)',
+      padding:'var(--space-8)',
+      textAlign:'center',
+    }}>
+      <img src="../../assets/logo.jpg" alt="Súbete y Gana" style={{height:40,width:40,objectFit:'contain',borderRadius:6,marginBottom:'var(--space-4)'}}/>
+      <div style={{
+        display:'flex',gap:'var(--space-6)',justifyContent:'center',flexWrap:'wrap',
+        fontSize:'var(--fs-xs)',marginBottom:'var(--space-4)',
+      }}>
+        {['Bases legales','Términos y condiciones','Política de privacidad','Contacto'].map(l=>(
+          <a key={l} href="#" style={{color:'var(--silver-700)',textDecoration:'none'}}>{l}</a>
+        ))}
+      </div>
+      <div style={{fontSize:'var(--fs-xs)',color:'var(--silver-700)'}}>
+        © 2025 Súbete y Gana · Sorteo sujeto a bases legales · Chile
+      </div>
+    </footer>
+  );
+}
+
+/* ── Purchase Modal ── */
+function PurchaseModal({ open, onClose }) {
+  const [qty, setQty] = React.useState(5);
+  const [step, setStep] = React.useState('select'); // select | confirm | success
+
+  if (!open) return null;
+
+  return (
+    <div style={{
+      position:'fixed',inset:0,zIndex:200,
+      background:'var(--bg-overlay)',
+      backdropFilter:'blur(8px)',
+      WebkitBackdropFilter:'blur(8px)',
+      display:'flex',alignItems:'center',justifyContent:'center',
+      padding:'var(--space-4)',
+    }} onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div style={{
+        background:'var(--bg-surface)',
+        borderRadius:'var(--radius-lg)',
+        border:'1px solid rgba(255,255,255,.1)',
+        boxShadow:'var(--shadow-card)',
+        width:'100%',maxWidth:480,
+        position:'relative',
+        overflow:'hidden',
+      }}>
+        {/* Gold top bar */}
+        <div style={{height:3,background:'var(--grad-gold)'}}/>
+
+        <div style={{padding:'var(--space-6)'}}>
+          {/* Header */}
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'var(--space-6)'}}>
+            <h2 style={{fontFamily:'var(--font-display)',fontSize:'var(--fs-h3)',fontWeight:700,color:'var(--silver-100)'}}>
+              {step==='success' ? '¡Participación confirmada!' : 'Comprar participaciones'}
+            </h2>
+            <button onClick={onClose} style={{
+              background:'none',border:'none',color:'var(--silver-500)',
+              fontSize:'1.25rem',cursor:'pointer',padding:4,lineHeight:1,
+            }}>✕</button>
+          </div>
+
+          {step==='select' && (
+            <>
+              <ParticipationSelector onChange={setQty}/>
+              <div style={{marginTop:'var(--space-6)'}}>
+                <Button variant="primary" fullWidth size="lg" onClick={()=>setStep('confirm')}>
+                  Continuar al pago
+                </Button>
+              </div>
+            </>
+          )}
+
+          {step==='confirm' && (
+            <div style={{display:'flex',flexDirection:'column',gap:'var(--space-4)'}}>
+              <div style={{
+                background:'var(--bg-elevated)',borderRadius:'var(--radius-md)',
+                border:'1px solid rgba(255,255,255,.06)',padding:'var(--space-4)',
+              }}>
+                <div style={{display:'flex',justifyContent:'space-between',marginBottom:'var(--space-2)'}}>
+                  <span style={{color:'var(--silver-500)',fontSize:'var(--fs-sm)'}}>Participaciones</span>
+                  <span style={{color:'var(--silver-100)',fontWeight:600}}>{qty}</span>
+                </div>
+                <div style={{display:'flex',justifyContent:'space-between',marginBottom:'var(--space-2)'}}>
+                  <span style={{color:'var(--silver-500)',fontSize:'var(--fs-sm)'}}>Precio unitario</span>
+                  <span style={{color:'var(--silver-100)',fontWeight:600}}>$3.000</span>
+                </div>
+                <div style={{height:1,background:'rgba(255,255,255,.06)',margin:'var(--space-3) 0'}}/>
+                <div style={{display:'flex',justifyContent:'space-between'}}>
+                  <span style={{color:'var(--silver-100)',fontWeight:700}}>Total</span>
+                  <span style={{
+                    fontWeight:800,fontSize:'1.25rem',
+                    background:'var(--grad-gold)',WebkitBackgroundClip:'text',
+                    WebkitTextFillColor:'transparent',backgroundClip:'text',
+                    fontVariantNumeric:'tabular-nums',
+                  }}>${(qty*3000).toLocaleString('es-CL')}</span>
+                </div>
+              </div>
+              <div style={{
+                padding:'var(--space-3)',
+                background:'rgba(255,176,32,.08)',
+                border:'1px solid rgba(255,176,32,.2)',
+                borderRadius:'var(--radius-sm)',
+                fontSize:'var(--fs-xs)',color:'var(--warning)',lineHeight:1.5,
+              }}>
+                Los correos pueden tardar unos minutos. Tu participación queda registrada inmediatamente.
+              </div>
+              <Button variant="primary" fullWidth size="lg" onClick={()=>setStep('success')}>
+                Pagar con Webpay — ${(qty*3000).toLocaleString('es-CL')}
+              </Button>
+              <Button variant="ghost" fullWidth onClick={()=>setStep('select')}>Volver</Button>
+            </div>
+          )}
+
+          {step==='success' && (
+            <div style={{textAlign:'center',padding:'var(--space-6) 0'}}>
+              <div style={{
+                width:72,height:72,borderRadius:'50%',
+                background:'rgba(52,199,89,.15)',border:'2px solid var(--success)',
+                display:'flex',alignItems:'center',justifyContent:'center',
+                margin:'0 auto var(--space-6)',fontSize:'2rem',
+              }}>✓</div>
+              <p style={{color:'var(--silver-300)',fontSize:'var(--fs-sm)',marginBottom:'var(--space-4)',lineHeight:'var(--lh-body)'}}>
+                Tu participación ha sido registrada. Recibirás una confirmación por correo con tu número único.
+              </p>
+              <div style={{
+                background:'var(--bg-elevated)',borderRadius:'var(--radius-md)',
+                border:'1px solid rgba(255,255,255,.06)',padding:'var(--space-4)',
+                marginBottom:'var(--space-6)',
+              }}>
+                <div style={{fontSize:'var(--fs-xs)',color:'var(--silver-500)',letterSpacing:'var(--ls-caps)',textTransform:'uppercase',marginBottom:4}}>Tu número de participación</div>
+                <div style={{
+                  fontFamily:'var(--font-mono)',fontSize:'2rem',fontWeight:700,
+                  background:'var(--grad-gold)',WebkitBackgroundClip:'text',
+                  WebkitTextFillColor:'transparent',backgroundClip:'text',
+                  fontVariantNumeric:'tabular-nums',
+                }}>#00{Math.floor(Math.random()*9000+1000)}</div>
+              </div>
+              <Button variant="primary" fullWidth onClick={onClose}>Cerrar</Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── App root ── */
+function App() {
+  const [modalOpen, setModalOpen] = React.useState(false);
+  return (
+    <>
+      <Header onBuy={()=>setModalOpen(true)}/>
+      <main>
+        <Hero onBuy={()=>setModalOpen(true)}/>
+        <HowItWorks/>
+        <ParticipationSection onBuy={()=>setModalOpen(true)}/>
+        <PrizeSection/>
+        <WallpapersSection/>
+        <TrustSection/>
+      </main>
+      <Footer/>
+      <PurchaseModal open={modalOpen} onClose={()=>setModalOpen(false)}/>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!-- @dsCard group="Spacing" viewport="700x160" name="Motion Tokens" subtitle="Duración y easing para transiciones de UI" -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { background: var(--bg-base); padding: 24px 20px; display: flex; gap: 16px; flex-wrap: wrap; }
+  .chip { background: var(--bg-elevated); border: 1px solid rgba(255,255,255,.06); border-radius: var(--radius-md); padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; }
+  .name  { font-size: 11px; font-weight: 600; color: var(--silver-100); }
+  .value { font-family: var(--font-mono); font-size: 10px; color: var(--gold-500); }
+  .usage { font-size: 10px; color: var(--silver-700); }
+  .demo-bar { height: 6px; background: var(--bg-surface); border-radius: 3px; margin-top: 8px; overflow: hidden; position: relative; }
+  .demo-fill { position: absolute; left: 0; top: 0; height: 100%; background: var(--grad-gold); border-radius: 3px; animation: slide 2s var(--ease-ui) infinite; }
+  @keyframes slide { 0%{width:0} 60%{width:100%} 100%{width:100%} }
+</style>
+</head>
+<body>
+  <div class="chip">
+    <div class="name">--dur-fast</div>
+    <div class="value">180ms</div>
+    <div class="usage">Hover states, badges</div>
+  </div>
+  <div class="chip">
+    <div class="name">--dur-base</div>
+    <div class="value">260ms</div>
+    <div class="usage">Button press, transitions</div>
+  </div>
+  <div class="chip">
+    <div class="name">--dur-slow</div>
+    <div class="value">420ms</div>
+    <div class="usage">Modal open, reveal</div>
+  </div>
+  <div class="chip" style="flex:1">
+    <div class="name">--ease-ui</div>
+    <div class="value">cubic-bezier(.22,.61,.36,1)</div>
+    <div class="usage">All UI motion — ease out quart</div>
+    <div class="demo-bar"><div class="demo-fill"></div></div>
+  </div>
+</body>
+</html>

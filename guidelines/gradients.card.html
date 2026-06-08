@@ -1,0 +1,57 @@
+<!-- @dsCard group="Colors" viewport="700x180" name="Gradients" subtitle="Firma visual — oro, cromo, glow, borde metálico" -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { background: var(--bg-base); padding: 20px; }
+  .row { display: flex; gap: 10px; }
+  .item { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .swatch { height: 64px; border-radius: var(--radius-sm); }
+  .name  { font-size: 11px; font-weight: 600; color: var(--silver-300); }
+  .token { font-family: var(--font-mono); font-size: 10px; color: var(--silver-700); }
+  /* Gold text demo */
+  .text-demo { font-size: 24px; font-weight: 800; font-family: var(--font-display); }
+  .gold-text-swatch { display: flex; align-items: center; justify-content: center; height: 64px; background: var(--bg-elevated); border-radius: var(--radius-sm); }
+  /* Border demo */
+  .border-demo { height: 64px; border-radius: var(--radius-sm); border: 2px solid transparent; background-image: var(--grad-border); background-origin: border-box; background-clip: border-box; background-color: var(--bg-elevated); display: flex; align-items: center; justify-content: center; }
+  .border-inner { font-size: 11px; color: var(--silver-500); }
+</style>
+</head>
+<body>
+<div class="row">
+  <div class="item">
+    <div class="swatch" style="background: var(--grad-gold)"></div>
+    <div class="name">--grad-gold</div>
+    <div class="token">CTA fills, text clip</div>
+  </div>
+  <div class="item">
+    <div class="swatch" style="background: var(--grad-chrome)"></div>
+    <div class="name">--grad-chrome</div>
+    <div class="token">Chrome text clip</div>
+  </div>
+  <div class="item">
+    <div class="gold-text-swatch">
+      <span class="text-demo text-gold">Gana</span>
+    </div>
+    <div class="name">text-gold util</div>
+    <div class="token">background-clip: text</div>
+  </div>
+  <div class="item">
+    <div class="gold-text-swatch" style="background:radial-gradient(60% 60% at 50% 50%, rgba(245,200,66,.25) 0%, var(--bg-elevated) 70%)">
+      <span style="font-size:11px;color:var(--silver-500)">--grad-glow</span>
+    </div>
+    <div class="name">--grad-glow</div>
+    <div class="token">Stage spotlight</div>
+  </div>
+  <div class="item">
+    <div class="border-demo">
+      <span class="border-inner">--grad-border</span>
+    </div>
+    <div class="name">--grad-border</div>
+    <div class="token">Premium card edge</div>
+  </div>
+</div>
+</body>
+</html>

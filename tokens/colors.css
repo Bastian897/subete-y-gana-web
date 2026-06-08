@@ -1,0 +1,37 @@
+/* ============================================================
+   SÚBETE Y GANA — Color Tokens
+   ============================================================ */
+:root {
+
+  /* --- Fondos / Backgrounds -------------------------------- */
+  --bg-base:     #0A0A0B; /* @kind color */
+  --bg-elevated: #141416; /* @kind color */
+  --bg-surface:  #1C1C20; /* @kind color */
+  --bg-overlay:  rgba(0,0,0,.72); /* @kind color */
+
+  /* --- Oro (color de marca primario) ----------------------- */
+  --gold-50:  #FFF8E1; /* @kind color */
+  --gold-200: #FFE9A8; /* @kind color */
+  --gold-400: #F5C842; /* @kind color */
+  --gold-500: #D4AF37; /* @kind color */
+  --gold-600: #B8860B; /* @kind color */
+  --gold-700: #8A6608; /* @kind color */
+
+  /* --- Cromo / Plata --------------------------------------- */
+  --silver-100: #FFFFFF; /* @kind color */
+  --silver-300: #E2E4E8; /* @kind color */
+  --silver-500: #A9ADB5; /* @kind color */
+  --silver-700: #6B6F78; /* @kind color */
+
+  /* --- Semánticos ------------------------------------------ */
+  --success: #34C759; /* @kind color */
+  --warning: #FFB020; /* @kind color */
+  --danger:  #FF453A; /* @kind color */
+  --info:    #4DA3FF; /* @kind color */
+
+  /* --- Gradientes (firma visual) --------------------------- */
+  --grad-gold:   linear-gradient(180deg, #FFF1B8 0%, #F5C842 28%, #D4AF37 55%, #B8860B 100%); /* @kind color */
+  --grad-chrome: linear-gradient(180deg, #FFFFFF 0%, #E2E4E8 40%, #B9BDC6 70%, #FFFFFF 100%); /* @kind color */
+  --grad-glow:   radial-gradient(60% 60% at 50% 30%, rgba(245,200,66,.18) 0%, transparent 70%); /* @kind color */
+  --grad-border: linear-gradient(135deg, #F5C842, #8A6608 50%, #F5C842); /* @kind color */
+}

@@ -1,0 +1,47 @@
+/* ============================================================
+   SÚBETE Y GANA — Design System Entry Point
+   Import order: fonts → tokens → (future: components base)
+   ============================================================ */
+@import 'tokens/typography.css';
+@import 'tokens/colors.css';
+@import 'tokens/spacing.css';
+
+/* Global resets & base styles */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--silver-100);
+  background-color: var(--bg-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility: gold gradient text */
+.text-gold {
+  background: var(--grad-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Utility: chrome gradient text */
+.text-chrome {
+  background: var(--grad-chrome);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Utility: metallic card border */
+.border-metal {
+  border: 1px solid transparent;
+  background-image: var(--grad-border);
+  background-origin: border-box;
+  background-clip: border-box;
+}
+
+/* Tabular numerics for prices / counters */
+.tabular { font-variant-numeric: tabular-nums; }

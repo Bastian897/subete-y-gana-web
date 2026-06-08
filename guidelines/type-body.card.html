@@ -1,0 +1,42 @@
+<!-- @dsCard group="Type" viewport="700x260" name="Body & UI" subtitle="Inter — texto funcional y de interfaz" -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { background: var(--bg-base); padding: 24px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .row { display: flex; align-items: baseline; gap: 16px; }
+  .specimen { font-family: var(--font-body); line-height: var(--lh-body); }
+  .meta { font-family: var(--font-mono); font-size: 10px; color: var(--silver-700); white-space: nowrap; flex-shrink: 0; }
+  .divider { height: 1px; background: rgba(255,255,255,.06); }
+  .label-demo { font-family: var(--font-body); font-size: var(--fs-xs); font-weight: 600; letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--gold-500); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="specimen" style="font-size:var(--fs-body);color:var(--silver-100);font-weight:400">Compra un fondo de pantalla y obtén tu número de participación único.</div>
+    <div class="meta">body · 1rem · 400</div>
+  </div>
+  <div class="divider"></div>
+  <div class="row">
+    <div class="specimen" style="font-size:var(--fs-body);color:var(--silver-300);font-weight:500">Los correos de confirmación pueden tardar unos minutos.</div>
+    <div class="meta">body · 500</div>
+  </div>
+  <div class="divider"></div>
+  <div class="row">
+    <div class="specimen" style="font-size:var(--fs-sm);color:var(--silver-500)">Bases legales · Términos y condiciones · Contacto</div>
+    <div class="meta">--fs-sm · 0.875rem</div>
+  </div>
+  <div class="divider"></div>
+  <div class="row">
+    <div class="label-demo">Sorteo ante notario</div>
+    <div class="meta">label · xs · caps · 0.08em</div>
+  </div>
+  <div class="divider"></div>
+  <div class="row">
+    <div class="specimen" style="font-size:var(--fs-xs);color:var(--silver-700)">* Precio por participación: $3.000 CLP. Valor sujeto a disponibilidad.</div>
+    <div class="meta">--fs-xs · 0.75rem</div>
+  </div>
+</body>
+</html>

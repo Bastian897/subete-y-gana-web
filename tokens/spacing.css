@@ -1,0 +1,33 @@
+/* ============================================================
+   SÚBETE Y GANA — Spacing, Radii & Shadow Tokens
+   ============================================================ */
+:root {
+
+  /* --- Spacing scale (4px base) --------------------------- */
+  --space-1:   4px; /* @kind spacing */
+  --space-2:   8px; /* @kind spacing */
+  --space-3:  12px; /* @kind spacing */
+  --space-4:  16px; /* @kind spacing */
+  --space-6:  24px; /* @kind spacing */
+  --space-8:  32px; /* @kind spacing */
+  --space-12: 48px; /* @kind spacing */
+  --space-16: 64px; /* @kind spacing */
+  --space-24: 96px; /* @kind spacing */
+
+  /* --- Border Radii --------------------------------------- */
+  --radius-sm:   8px; /* @kind radius */
+  --radius-md:  14px; /* @kind radius */
+  --radius-lg:  22px; /* @kind radius */
+  --radius-pill: 999px; /* @kind radius */
+
+  /* --- Shadows -------------------------------------------- */
+  --shadow-card:        0 10px 30px rgba(0,0,0,.45); /* @kind shadow */
+  --shadow-gold:        0 8px 28px rgba(212,175,55,.35); /* @kind shadow */
+  --shadow-inset-metal: inset 0 1px 0 rgba(255,255,255,.25), inset 0 -2px 6px rgba(0,0,0,.5); /* @kind shadow */
+
+  /* --- Motion -------------------------------------------- */
+  --ease-ui:  cubic-bezier(.22,.61,.36,1); /* @kind other */
+  --dur-fast: 180ms; /* @kind other */
+  --dur-base: 260ms; /* @kind other */
+  --dur-slow: 420ms; /* @kind other */
+}

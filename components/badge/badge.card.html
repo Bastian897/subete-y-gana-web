@@ -1,0 +1,44 @@
+<!-- @dsCard group="Components" viewport="700x160" name="Badges" subtitle="Trust · Status · Neutral — señales de confianza y estado" -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { background: var(--bg-base); padding: 24px 20px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .label { font-size: 10px; font-weight: 600; color: var(--silver-700); letter-spacing: var(--ls-caps); text-transform: uppercase; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { Badge } = window.SBeteYGanaDesignSystem_9297b8;
+function App() {
+  return (
+    <div>
+      <div className="label">Trust &amp; Brand</div>
+      <div className="row">
+        <Badge variant="trust">Sorteo ante notario</Badge>
+        <Badge variant="trust">Pago 100% seguro</Badge>
+        <Badge variant="trust">Transmisión en vivo</Badge>
+        <Badge variant="neutral">Chile</Badge>
+      </div>
+      <div className="label">Status</div>
+      <div className="row">
+        <Badge variant="success">Participación confirmada</Badge>
+        <Badge variant="warning">Correo puede tardar</Badge>
+        <Badge variant="danger">Error en pago</Badge>
+        <Badge variant="info">Sorteo el 15 Jul</Badge>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

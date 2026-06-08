@@ -1,0 +1,46 @@
+<!-- @dsCard group="Components" viewport="700x200" name="Buttons" subtitle="Primary · Secondary · Ghost — todos los tamaños" -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { background: var(--bg-base); padding: 24px 20px; }
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .divider { height: 1px; background: rgba(255,255,255,.06); margin: 12px 0; }
+  .label { font-size: 10px; font-weight: 600; color: var(--silver-700); letter-spacing: var(--ls-caps); text-transform: uppercase; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { Button } = window.SBeteYGanaDesignSystem_9297b8;
+function App() {
+  return (
+    <div>
+      <div className="label">Primary</div>
+      <div className="row">
+        <Button variant="primary" size="sm">Participar</Button>
+        <Button variant="primary" size="md">Comprar participación</Button>
+        <Button variant="primary" size="lg">Participar ahora</Button>
+        <Button variant="primary" disabled>Agotado</Button>
+      </div>
+      <div className="divider"/>
+      <div className="label">Secondary &amp; Ghost</div>
+      <div className="row">
+        <Button variant="secondary" size="sm">Ver el premio</Button>
+        <Button variant="secondary" size="md">Más información</Button>
+        <Button variant="ghost" size="sm">Iniciar sesión</Button>
+        <Button variant="ghost" size="md">Bases legales</Button>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

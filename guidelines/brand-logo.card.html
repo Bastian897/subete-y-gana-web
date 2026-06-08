@@ -1,0 +1,40 @@
+<!-- @dsCard group="Brand" viewport="700x320" name="Logo" subtitle="Logotipo principal — uso correcto" -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { background: var(--bg-base); padding: 24px; display: flex; gap: 24px; align-items: flex-start; }
+  .logo-main { width: 200px; height: 200px; object-fit: contain; border-radius: var(--radius-md); }
+  .logo-dark { background: var(--bg-elevated); border: 1px solid rgba(255,255,255,.06); border-radius: var(--radius-md); padding: 20px; width: 180px; height: 180px; display: flex; align-items: center; justify-content: center; }
+  .logo-dark img { width: 140px; height: 140px; object-fit: contain; }
+  .notes { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .note-label { font-size: 10px; font-weight: 600; color: var(--silver-500); letter-spacing: var(--ls-caps); text-transform: uppercase; margin-bottom: 2px; }
+  .note-text { font-size: 11px; color: var(--silver-300); line-height: 1.5; }
+  .do { border-left: 2px solid var(--success); padding-left: 10px; }
+  .dont { border-left: 2px solid var(--danger); padding-left: 10px; }
+</style>
+</head>
+<body>
+  <img src="../assets/logo.jpg" class="logo-main" alt="Súbete y Gana logo">
+  <div class="notes">
+    <div>
+      <div class="note-label">Composición</div>
+      <div class="note-text">Script cromado "Súbete" · "y" en oro pequeño · Gold 3D "gana" · Llave de auto dorada · Confeti dorado/plateado · Arco dorado circular</div>
+    </div>
+    <div class="do">
+      <div class="note-label" style="color:var(--success)">✓ Usar</div>
+      <div class="note-text">Sobre fondo negro o muy oscuro. Mínimo 80px de ancho. Sin recortar el confeti.</div>
+    </div>
+    <div class="dont">
+      <div class="note-label" style="color:var(--danger)">✗ Evitar</div>
+      <div class="note-text">Fondos claros. Recolorizar. Estirar. Colocar sobre oro o plata sólido. Usar la caligrafía del logo como tipografía del sitio.</div>
+    </div>
+    <div>
+      <div class="note-label">Espacio mínimo</div>
+      <div class="note-text">Clearance = 10% del ancho del logo en cada lado.</div>
+    </div>
+  </div>
+</body>
+</html>

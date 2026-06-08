@@ -1,0 +1,47 @@
+<!-- @dsCard group="Colors" viewport="700x200" name="Silver / Chrome" subtitle="Cromo plateado — texto principal y secundario" -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { background: var(--bg-base); padding: 20px; }
+  .row { display: flex; gap: 8px; align-items: flex-end; }
+  .swatch { flex: 1; border-radius: 8px; display: flex; flex-direction: column; justify-content: flex-end; padding: 8px 6px 6px; }
+  .swatch-label { font-family: var(--font-mono); font-size: 10px; line-height: 1.3; }
+  .swatch-name  { font-size: 11px; font-weight: 600; color: var(--silver-500); margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="row">
+  <div>
+    <div class="swatch" style="background:var(--silver-100);height:110px;"><div class="swatch-label" style="color:rgba(0,0,0,.6)">#FFFFFF</div></div>
+    <div class="swatch-name">100 ★</div>
+  </div>
+  <div>
+    <div class="swatch" style="background:var(--silver-300);height:90px;"><div class="swatch-label" style="color:rgba(0,0,0,.6)">#E2E4E8</div></div>
+    <div class="swatch-name">300</div>
+  </div>
+  <div>
+    <div class="swatch" style="background:var(--silver-500);height:70px;"><div class="swatch-label" style="color:rgba(0,0,0,.7)">#A9ADB5</div></div>
+    <div class="swatch-name">500</div>
+  </div>
+  <div>
+    <div class="swatch" style="background:var(--silver-700);height:55px;"><div class="swatch-label" style="color:rgba(255,255,255,.8)">#6B6F78</div></div>
+    <div class="swatch-name">700</div>
+  </div>
+  <div>
+    <div class="swatch" style="background:var(--bg-surface);height:55px;border:1px solid rgba(255,255,255,.1);"><div class="swatch-label" style="color:rgba(255,255,255,.5)">#1C1C20</div></div>
+    <div class="swatch-name">Surface</div>
+  </div>
+  <div>
+    <div class="swatch" style="background:var(--bg-elevated);height:55px;border:1px solid rgba(255,255,255,.08);"><div class="swatch-label" style="color:rgba(255,255,255,.4)">#141416</div></div>
+    <div class="swatch-name">Elevated</div>
+  </div>
+  <div>
+    <div class="swatch" style="background:var(--bg-base);height:55px;border:1px solid rgba(255,255,255,.06);"><div class="swatch-label" style="color:rgba(255,255,255,.3)">#0A0A0B</div></div>
+    <div class="swatch-name">Base</div>
+  </div>
+</div>
+</body>
+</html>

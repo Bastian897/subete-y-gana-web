@@ -1,0 +1,42 @@
+<!-- @dsCard group="Type" viewport="700x200" name="Numeric / Mono" subtitle="Geist Mono / Inter tabular — precios y contadores" -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { background: var(--bg-base); padding: 24px 20px; display: flex; flex-direction: column; gap: 16px; }
+  .row { display: flex; align-items: center; gap: 24px; }
+  .divider { height: 1px; background: rgba(255,255,255,.06); }
+  .meta { font-family: var(--font-mono); font-size: 10px; color: var(--silver-700); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <span class="text-gold tabular" style="font-family:var(--font-body);font-size:2.5rem;font-weight:800;font-variant-numeric:tabular-nums">$15.000</span>
+    <div class="meta">price · 2.5rem · fw-800 · tabular-nums · text-gold</div>
+  </div>
+  <div class="divider"></div>
+  <div class="row">
+    <div style="display:flex;gap:8px">
+      <div style="background:var(--bg-surface);border-radius:var(--radius-sm);padding:10px 14px;text-align:center;">
+        <div class="tabular" style="font-family:var(--font-mono);font-size:1.75rem;font-weight:700;color:var(--silver-100)">04</div>
+        <div style="font-size:10px;color:var(--silver-500);letter-spacing:var(--ls-caps);text-transform:uppercase;margin-top:2px">días</div>
+      </div>
+      <div style="background:var(--bg-surface);border-radius:var(--radius-sm);padding:10px 14px;text-align:center;">
+        <div class="tabular" style="font-family:var(--font-mono);font-size:1.75rem;font-weight:700;color:var(--silver-100)">12</div>
+        <div style="font-size:10px;color:var(--silver-500);letter-spacing:var(--ls-caps);text-transform:uppercase;margin-top:2px">hrs</div>
+      </div>
+      <div style="background:var(--bg-surface);border-radius:var(--radius-sm);padding:10px 14px;text-align:center;">
+        <div class="tabular" style="font-family:var(--font-mono);font-size:1.75rem;font-weight:700;color:var(--silver-100)">37</div>
+        <div style="font-size:10px;color:var(--silver-500);letter-spacing:var(--ls-caps);text-transform:uppercase;margin-top:2px">min</div>
+      </div>
+      <div style="background:var(--bg-surface);border-radius:var(--radius-sm);padding:10px 14px;text-align:center;">
+        <div class="tabular" style="font-family:var(--font-mono);font-size:1.75rem;font-weight:700;color:var(--silver-100)">55</div>
+        <div style="font-size:10px;color:var(--silver-500);letter-spacing:var(--ls-caps);text-transform:uppercase;margin-top:2px">seg</div>
+      </div>
+    </div>
+    <div class="meta">countdown · mono · tabular-nums</div>
+  </div>
+</body>
+</html>

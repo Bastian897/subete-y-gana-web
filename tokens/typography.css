@@ -1,0 +1,45 @@
+/* ============================================================
+   SÚBETE Y GANA — Typography Tokens
+   ============================================================ */
+
+/* Google Fonts — Poppins (display) + Inter (UI/body) + Geist Mono (numeric) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+
+/* Note: Clash Display is not on Google Fonts. Poppins ExtraBold is the
+   nearest high-impact display substitute. Replace with Clash Display
+   (https://www.fontshare.com/fonts/clash-display) once files are available. */
+
+:root {
+  /* --- Font Families --------------------------------------- */
+  --font-display: 'Poppins', system-ui, sans-serif; /* @kind font */
+  --font-body:    'Inter', system-ui, sans-serif; /* @kind font */
+  --font-mono:    'Geist Mono', 'Courier New', monospace; /* @kind font */
+
+  /* --- Type Scale (responsive clamp) ---------------------- */
+  --fs-display: clamp(2.75rem, 6vw, 5.5rem); /* @kind spacing */
+  --fs-h1:      clamp(2rem, 4vw, 3.25rem); /* @kind spacing */
+  --fs-h2:      clamp(1.5rem, 3vw, 2.25rem); /* @kind spacing */
+  --fs-h3:      1.25rem; /* @kind spacing */
+  --fs-body:    1rem; /* @kind spacing */
+  --fs-sm:      0.875rem; /* @kind spacing */
+  --fs-xs:      0.75rem; /* @kind spacing */
+
+  /* --- Line Heights --------------------------------------- */
+  --lh-display: 1.05; /* @kind other */
+  --lh-heading: 1.1; /* @kind other */
+  --lh-body:    1.6; /* @kind other */
+
+  /* --- Font Weights --------------------------------------- */
+  --fw-regular:   400; /* @kind other */
+  --fw-medium:    500; /* @kind other */
+  --fw-semibold:  600; /* @kind other */
+  --fw-bold:      700; /* @kind other */
+  --fw-extrabold: 800; /* @kind other */
+  --fw-black:     900; /* @kind other */
+
+  /* --- Letter Spacing ------------------------------------- */
+  --ls-tight:  -0.02em; /* @kind other */
+  --ls-normal:  0em; /* @kind other */
+  --ls-caps:    0.08em; /* @kind other */
+  --ls-wide:    0.12em; /* @kind other */
+}
