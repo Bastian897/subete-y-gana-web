@@ -1,363 +1,457 @@
 <!-- @dsCard group="Purchase" viewport="1440x860" name="Purchase Flow" subtitle="Flujo de compra completo — selección, pago y confirmación" -->
-<!-- @startingPoint section="Purchase" subtitle="Modal de compra paso a paso — selección, resumen, pago y confirmación" viewport="480x680" -->
+<!-- @startingPoint section="Purchase" subtitle="Modal de compra paso a paso — selección, resumen, pago y confirmación" viewport="1100x760" -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Flujo de Compra — Súbete y Gana</title>
+<title>Compra tu participación — Súbete y Gana</title>
 <link rel="stylesheet" href="../../styles.css">
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <script src="../../_ds_bundle.js"></script>
 <style>
+  *,*::before,*::after{box-sizing:border-box}
   input[type=number]{-moz-appearance:textfield}
   input[type=number]::-webkit-inner-spin-button,
   input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
-  @keyframes slide-in {
-    from{opacity:0;transform:translateY(16px)}
+
+  @keyframes panel-in{
+    from{opacity:0;transform:translateY(12px)}
     to{opacity:1;transform:translateY(0)}
   }
-  .step-panel{animation:slide-in .28s cubic-bezier(.22,.61,.36,1) both}
+  .panel-in{animation:panel-in .24s cubic-bezier(.22,.61,.36,1) both}
+
   @keyframes success-pop{
-    0%{transform:scale(.7);opacity:0}
-    70%{transform:scale(1.08)}
+    0%{transform:scale(.65);opacity:0}
+    70%{transform:scale(1.1)}
     100%{transform:scale(1);opacity:1}
   }
-  .success-icon{animation:success-pop .45s cubic-bezier(.22,.61,.36,1) both}
+  .success-pop{animation:success-pop .4s cubic-bezier(.22,.61,.36,1) both}
+
+  button{font-family:var(--font-body);cursor:pointer}
+  button:disabled{opacity:.5;cursor:not-allowed}
+
+  /* chip preset buttons */
+  .chip-btn{
+    display:flex;align-items:center;justify-content:center;
+    height:40px;min-width:48px;padding:0 14px;
+    border-radius:8px;font-size:var(--fs-sm);font-weight:600;
+    transition:all .15s ease;
+  }
+  .chip-btn:hover:not(.chip-active){
+    border-color:rgba(245,200,66,.4)!important;
+    color:var(--silver-100)!important;
+  }
+
+  /* stepper */
+  .stepper-btn{
+    width:38px;height:38px;display:flex;align-items:center;justify-content:center;
+    background:var(--bg-elevated);border:1px solid rgba(255,255,255,.12);
+    color:var(--silver-100);font-size:1.25rem;font-weight:300;
+    transition:background .15s;
+  }
+  .stepper-btn:hover{background:#222228}
+
+  /* payment method card */
+  .method-card{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 16px;border-radius:10px;
+    border:1.5px solid rgba(255,255,255,.08);
+    background:var(--bg-elevated);cursor:pointer;
+    transition:all .18s;
+  }
+  .method-card:hover{border-color:rgba(245,200,66,.3)}
+  .method-card.selected{background:rgba(212,175,55,.07);border-color:var(--gold-500)}
+
+  /* primary CTA */
+  .cta-btn{
+    width:100%;height:50px;border-radius:10px;border:none;
+    background:var(--gold-400);color:#0A0A0B;
+    font-size:var(--fs-body);font-weight:700;letter-spacing:.01em;
+    transition:filter .15s,transform .1s;
+  }
+  .cta-btn:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}
+  .cta-btn:active:not(:disabled){transform:translateY(0)}
+
+  /* ghost back button */
+  .ghost-btn{
+    width:100%;height:42px;border-radius:8px;
+    background:transparent;border:1px solid rgba(255,255,255,.1);
+    color:var(--silver-500);font-size:var(--fs-sm);
+    transition:border-color .15s,color .15s;
+  }
+  .ghost-btn:hover{border-color:rgba(255,255,255,.2);color:var(--silver-300)}
+
+  /* text inputs */
+  .input-field{
+    width:100%;height:44px;border-radius:8px;
+    background:var(--bg-elevated);border:1.5px solid rgba(255,255,255,.1);
+    color:var(--silver-100);font-size:var(--fs-sm);
+    padding:0 14px;outline:none;
+    transition:border-color .15s;
+    font-family:var(--font-body);
+  }
+  .input-field:focus{border-color:var(--gold-500)}
+  .input-field::placeholder{color:var(--silver-700)}
+  .input-field.err{border-color:var(--danger)}
 </style>
 </head>
-<body style="background:var(--bg-base);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:var(--space-6)">
-<div id="root" style="width:100%;max-width:960px"></div>
+<body style="background:var(--bg-base);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 24px">
+<div id="root" style="width:100%;max-width:1040px"></div>
 <script type="text/babel">
-const DS = window.SBeteYGanaDesignSystem_9297b8;
-const { Button, Badge, ParticipationSelector, Input } = DS;
 
-const STEPS = ['Selección','Datos','Pago','Confirmación'];
+const PRESETS = [5, 10, 25, 50, 100];
 
-/* ── Step indicator ── */
-function StepBar({ current }) {
+/*
+  Step indexes:
+    0 → Decide la cantidad  (shown by default — page is public)
+    1 → Inicia sesión       (only when progressing to checkout)
+    2 → Pagar con tarjeta
+    3 → Confirmación
+*/
+const STEPS_META = [
+  { label:'Decide la cantidad', desc:'Cuántas participaciones quieres' },
+  { label:'Inicia sesión',      desc:'Verificaremos tu correo'         },
+  { label:'Pagar con tarjeta',  desc:'Efectúa el pago'                 },
+  { label:'Confirmación',       desc:'¡Proceso completado!'            },
+];
+
+/* ─── Steps sidebar ─────────────────────────────────── */
+function StepsSidebar({ current }) {
   return (
-    <div style={{display:'flex',alignItems:'center',marginBottom:'var(--space-8)'}}>
-      {STEPS.map((s,i) => (
-        <React.Fragment key={s}>
-          <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4,flex:i<STEPS.length-1?'0 0 auto':undefined}}>
+    <div style={{display:'flex',flexDirection:'column',gap:28,width:220}}>
+      {STEPS_META.map((s,i) => {
+        const done   = i < current;
+        const active = i === current;
+        return (
+          <div key={i} style={{display:'flex',gap:14,alignItems:'flex-start'}}>
             <div style={{
-              width:28,height:28,borderRadius:'50%',
-              background:i<=current?'var(--grad-gold)':'var(--bg-elevated)',
-              border:i===current?'none':i<current?'none':'1.5px solid rgba(255,255,255,.12)',
+              width:36,height:36,borderRadius:'50%',flexShrink:0,
+              background: done ? 'var(--gold-500)' : active ? 'var(--gold-500)' : 'var(--bg-elevated)',
+              border: (!done && !active) ? '1.5px solid rgba(255,255,255,.12)' : 'none',
               display:'flex',alignItems:'center',justifyContent:'center',
-              fontSize:'var(--fs-xs)',fontWeight:700,
-              color:i<=current?'#1A1407':'var(--silver-700)',
-              transition:'all .25s',
-              flexShrink:0,
+              fontWeight:700,fontSize:'var(--fs-sm)',
+              color:(done||active) ? '#0A0A0B' : 'var(--silver-700)',
             }}>
-              {i<current?'✓':i+1}
+              {done ? '✓' : i+1}
             </div>
-            <span style={{
-              fontSize:10,fontWeight:600,letterSpacing:'0.04em',
-              color:i===current?'var(--gold-400)':i<current?'var(--silver-500)':'var(--silver-700)',
-              whiteSpace:'nowrap',
-            }}>{s}</span>
+            <div style={{paddingTop:4}}>
+              <div style={{
+                fontSize:'var(--fs-sm)',fontWeight:600,lineHeight:1.3,
+                color: active ? 'var(--silver-100)' : done ? 'var(--silver-300)' : 'var(--silver-700)',
+              }}>{s.label}</div>
+              <div style={{
+                fontSize:'var(--fs-xs)',marginTop:3,lineHeight:1.4,
+                color: active ? 'var(--silver-500)' : 'var(--silver-700)',
+              }}>{s.desc}</div>
+            </div>
           </div>
-          {i<STEPS.length-1 && (
-            <div style={{
-              flex:1,height:1,margin:'0 6px',marginBottom:18,
-              background:i<current
-                ?'linear-gradient(90deg,var(--gold-600),var(--gold-400))'
-                :'rgba(255,255,255,.08)',
-              transition:'background .4s',
-            }}/>
-          )}
-        </React.Fragment>
-      ))}
+        );
+      })}
     </div>
   );
 }
 
-/* ── Step 0: Selection ── */
-function StepSelect({ qty, setQty, onNext }) {
+/* ─── Step 0: Quantity (visible by default, no login needed) ── */
+function StepQuantity({ qty, setQty, userName, onLogout, onNext }) {
   return (
-    <div className="step-panel">
-      <h2 style={{fontFamily:'var(--font-display)',fontSize:'var(--fs-h2)',fontWeight:800,color:'var(--silver-100)',marginBottom:'var(--space-2)'}}>
-        Elige tus participaciones
-      </h2>
-      <p style={{fontSize:'var(--fs-sm)',color:'var(--silver-500)',marginBottom:'var(--space-6)'}}>
-        Cada participación = un fondo de pantalla exclusivo + tu número único.
-      </p>
-
-      {/* Prize reminder */}
-      <div style={{
-        display:'flex',alignItems:'center',gap:'var(--space-4)',
-        background:'var(--bg-elevated)',borderRadius:'var(--radius-md)',
-        border:'1px solid rgba(255,255,255,.06)',
-        padding:'var(--space-4)',marginBottom:'var(--space-6)',
+    <div className="panel-in">
+      <h3 style={{
+        fontFamily:'var(--font-display)',fontWeight:700,
+        fontSize:'var(--fs-h3)',color:'var(--silver-100)',marginBottom:20,
       }}>
-        <div style={{
-          width:56,height:56,borderRadius:'var(--radius-sm)',
-          background:'var(--bg-surface)',border:'1px solid rgba(255,255,255,.06)',
-          display:'flex',alignItems:'center',justifyContent:'center',
-          flexShrink:0,fontSize:24,opacity:.3,
-        }}>🚗</div>
-        <div>
-          <div style={{fontWeight:700,color:'var(--silver-100)',fontSize:'var(--fs-sm)'}}>Chevrolet Silverado Z71</div>
-          <div style={{fontSize:'var(--fs-xs)',color:'var(--silver-500)',marginTop:2}}>Valuada en $28.000.000 CLP · Sorteo ante notario</div>
+        Selecciona tus participaciones
+      </h3>
+
+      {/* User greeting — only shown when logged in */}
+      {userName && (
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}>
+          <div style={{
+            width:36,height:36,borderRadius:'50%',flexShrink:0,
+            background:'var(--bg-elevated)',border:'1px solid rgba(255,255,255,.1)',
+            display:'flex',alignItems:'center',justifyContent:'center',
+            fontSize:16,color:'var(--silver-500)',
+          }}>👤</div>
+          <div style={{fontSize:'var(--fs-sm)',lineHeight:1.4}}>
+            <span style={{color:'var(--silver-100)',fontWeight:600}}>Hola, {userName}!</span>
+            {' '}
+            <span style={{color:'var(--silver-600)'}}>¿No eres tú? Puedes{' '}</span>
+            <span
+              onClick={onLogout}
+              style={{color:'var(--gold-400)',textDecoration:'underline',cursor:'pointer',fontWeight:500}}
+            >cerrar sesión.</span>
+          </div>
         </div>
-        <Badge variant="trust" style={{marginLeft:'auto',flexShrink:0}}>Premio</Badge>
+      )}
+
+      <div style={{fontSize:'var(--fs-sm)',color:'var(--silver-500)',marginBottom:12}}>
+        Cantidad de participaciones:
       </div>
 
-      <ParticipationSelector onChange={setQty}/>
-
-      <div style={{marginTop:'var(--space-6)'}}>
-        <Button variant="primary" fullWidth size="lg" onClick={onNext}>
-          Continuar — ${(qty*3000).toLocaleString('es-CL')}
-        </Button>
+      {/* Preset chips */}
+      <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:20}}>
+        {PRESETS.map(n => {
+          const active = qty === n;
+          return (
+            <button
+              key={n}
+              className={`chip-btn${active?' chip-active':''}`}
+              onClick={() => setQty(n)}
+              style={{
+                background: active ? 'transparent' : 'var(--bg-elevated)',
+                border: `1.5px solid ${active ? 'var(--gold-400)' : 'rgba(255,255,255,.1)'}`,
+                color: active ? 'var(--gold-400)' : 'var(--silver-300)',
+              }}
+            >{n}</button>
+          );
+        })}
       </div>
-    </div>
-  );
-}
 
-/* ── Step 1: Datos ── */
-function StepData({ onNext, onBack }) {
-  const [name, setName] = React.useState('');
-  const [email, setEmail] = React.useState('');
-  const [rut, setRut] = React.useState('');
-  const [errors, setErrors] = React.useState({});
-
-  const validate = () => {
-    const e = {};
-    if (!name.trim()) e.name = 'Ingresa tu nombre completo';
-    if (!email.includes('@')) e.email = 'Correo electrónico inválido';
-    if (!rut.trim()) e.rut = 'Ingresa tu RUT';
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  return (
-    <div className="step-panel">
-      <h2 style={{fontFamily:'var(--font-display)',fontSize:'var(--fs-h2)',fontWeight:800,color:'var(--silver-100)',marginBottom:'var(--space-2)'}}>
-        Tus datos
-      </h2>
-      <p style={{fontSize:'var(--fs-sm)',color:'var(--silver-500)',marginBottom:'var(--space-6)'}}>
-        Necesitamos tus datos para emitir tu participación y enviarte la confirmación.
-      </p>
-      <div style={{display:'flex',flexDirection:'column',gap:'var(--space-4)'}}>
-        <Input label="Nombre completo" placeholder="Juan Pérez" value={name} onChange={setName} error={errors.name}/>
-        <Input label="Correo electrónico" type="email" placeholder="juan@correo.cl" value={email} onChange={setEmail} error={errors.email} helpText="Te enviaremos tu número de participación aquí"/>
-        <Input label="RUT" placeholder="12.345.678-9" value={rut} onChange={setRut} error={errors.rut}/>
-      </div>
-      <div style={{marginTop:'var(--space-6)',display:'flex',flexDirection:'column',gap:'var(--space-3)'}}>
-        <Button variant="primary" fullWidth size="lg" onClick={()=>validate()&&onNext()}>Continuar al pago</Button>
-        <Button variant="ghost" fullWidth onClick={onBack}>Volver</Button>
-      </div>
-    </div>
-  );
-}
-
-/* ── Step 2: Payment ── */
-function StepPay({ qty, onNext, onBack }) {
-  const [method, setMethod] = React.useState('webpay');
-  const [loading, setLoading] = React.useState(false);
-
-  const methods = [
-    { id:'webpay', label:'Webpay / Transbank', sub:'Débito, crédito y prepago' },
-    { id:'flow',   label:'Flow',               sub:'Todos los medios de pago chilenos' },
-    { id:'mepago', label:'MercadoPago',         sub:'Tarjetas y transferencias' },
-  ];
-
-  const handlePay = () => {
-    setLoading(true);
-    setTimeout(() => { setLoading(false); onNext(); }, 1800);
-  };
-
-  return (
-    <div className="step-panel">
-      <h2 style={{fontFamily:'var(--font-display)',fontSize:'var(--fs-h2)',fontWeight:800,color:'var(--silver-100)',marginBottom:'var(--space-2)'}}>
-        Método de pago
-      </h2>
-      <p style={{fontSize:'var(--fs-sm)',color:'var(--silver-500)',marginBottom:'var(--space-6)'}}>
-        Todos los pagos son procesados de forma 100% segura.
-      </p>
-
-      {/* Order summary */}
-      <div style={{
-        background:'var(--bg-elevated)',borderRadius:'var(--radius-md)',
-        border:'1px solid rgba(255,255,255,.06)',padding:'var(--space-4)',marginBottom:'var(--space-6)',
-      }}>
-        <div style={{display:'flex',justifyContent:'space-between',marginBottom:'var(--space-2)'}}>
-          <span style={{color:'var(--silver-500)',fontSize:'var(--fs-sm)'}}>Participaciones</span>
-          <span style={{color:'var(--silver-100)',fontWeight:600}}>{qty}</span>
+      {/* Stepper + total */}
+      <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:28}}>
+        <div style={{display:'flex',borderRadius:8,overflow:'hidden'}}>
+          <button className="stepper-btn" style={{borderRadius:'8px 0 0 8px'}} onClick={()=>setQty(q=>Math.max(1,q-1))}>−</button>
+          <div style={{
+            width:52,height:38,display:'flex',alignItems:'center',justifyContent:'center',
+            background:'var(--bg-elevated)',
+            borderTop:'1px solid rgba(255,255,255,.12)',borderBottom:'1px solid rgba(255,255,255,.12)',
+            color:'var(--silver-100)',fontWeight:700,fontSize:'var(--fs-body)',
+            fontVariantNumeric:'tabular-nums',
+          }}>{qty}</div>
+          <button className="stepper-btn" style={{borderRadius:'0 8px 8px 0'}} onClick={()=>setQty(q=>q+1)}>+</button>
         </div>
-        <div style={{display:'flex',justifyContent:'space-between',marginBottom:'var(--space-2)'}}>
-          <span style={{color:'var(--silver-500)',fontSize:'var(--fs-sm)'}}>Precio unitario</span>
-          <span style={{color:'var(--silver-100)',fontWeight:600}}>$3.000</span>
-        </div>
-        <div style={{height:1,background:'rgba(255,255,255,.06)',margin:'var(--space-3) 0'}}/>
-        <div style={{display:'flex',justifyContent:'space-between'}}>
-          <span style={{color:'var(--silver-100)',fontWeight:700,fontSize:'var(--fs-body)'}}>Total</span>
+        <div style={{flex:1}}>
+          <span style={{fontSize:'var(--fs-sm)',color:'var(--silver-500)'}}>A pagar: </span>
           <span style={{
-            fontWeight:800,fontSize:'1.25rem',fontVariantNumeric:'tabular-nums',
-            background:'var(--grad-gold)',WebkitBackgroundClip:'text',
-            WebkitTextFillColor:'transparent',backgroundClip:'text',
+            fontSize:'var(--fs-h3)',fontWeight:800,
+            color:'var(--silver-100)',fontVariantNumeric:'tabular-nums',
           }}>${(qty*3000).toLocaleString('es-CL')}</span>
         </div>
       </div>
 
-      {/* Payment methods */}
-      <div style={{display:'flex',flexDirection:'column',gap:'var(--space-2)',marginBottom:'var(--space-4)'}}>
+      <button className="cta-btn" onClick={onNext}>Continuar →</button>
+    </div>
+  );
+}
+
+/* ─── Step 1: Auth (only when not logged in) ─────────── */
+function StepAuth({ onNext, onBack }) {
+  const [email,setEmail] = React.useState('');
+  const [err,setErr]     = React.useState('');
+  const submit = () => {
+    if (!email.includes('@')) { setErr('Ingresa un correo válido'); return; }
+    onNext(email);
+  };
+  return (
+    <div className="panel-in">
+      <h3 style={{
+        fontFamily:'var(--font-display)',fontWeight:700,
+        fontSize:'var(--fs-h3)',color:'var(--silver-100)',marginBottom:6,
+      }}>Inicia sesión</h3>
+      <p style={{fontSize:'var(--fs-sm)',color:'var(--silver-500)',marginBottom:24,lineHeight:1.5}}>
+        Ingresa tu correo para confirmar tu identidad y reservar tu número.
+      </p>
+      <label style={{
+        display:'block',fontSize:'var(--fs-xs)',fontWeight:600,
+        color:'var(--silver-500)',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:6,
+      }}>Correo electrónico</label>
+      <input
+        className={`input-field${err?' err':''}`}
+        type="email" placeholder="tu@correo.cl"
+        value={email}
+        onChange={e=>{setEmail(e.target.value);setErr('');}}
+        onKeyDown={e=>e.key==='Enter'&&submit()}
+        style={{marginBottom:err?8:20}}
+      />
+      {err && <p style={{fontSize:'var(--fs-xs)',color:'var(--danger)',marginBottom:16}}>{err}</p>}
+      <div style={{display:'flex',flexDirection:'column',gap:10}}>
+        <button className="cta-btn" onClick={submit}>Verificar correo →</button>
+        <button className="ghost-btn" onClick={onBack}>Volver</button>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Step 2: Payment ────────────────────────────────── */
+function StepPay({ qty, onNext, onBack }) {
+  const [method,setMethod] = React.useState('webpay');
+  const [loading,setLoading] = React.useState(false);
+  const methods = [
+    {id:'webpay', label:'Webpay / Transbank', sub:'Débito, crédito y prepago'},
+    {id:'flow',   label:'Flow',               sub:'Todos los medios de pago chilenos'},
+    {id:'mepago', label:'MercadoPago',         sub:'Tarjetas y transferencias'},
+  ];
+  const handlePay = () => {
+    setLoading(true);
+    setTimeout(()=>{setLoading(false);onNext();},1800);
+  };
+  return (
+    <div className="panel-in">
+      <h3 style={{
+        fontFamily:'var(--font-display)',fontWeight:700,
+        fontSize:'var(--fs-h3)',color:'var(--silver-100)',marginBottom:8,
+      }}>Método de pago</h3>
+      <p style={{fontSize:'var(--fs-sm)',color:'var(--silver-500)',marginBottom:20}}>
+        Todos los pagos son 100% seguros y procesados en Chile.
+      </p>
+
+      {/* Summary */}
+      <div style={{
+        background:'var(--bg-elevated)',borderRadius:10,
+        border:'1px solid rgba(255,255,255,.07)',padding:16,marginBottom:20,
+      }}>
+        <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+          <span style={{color:'var(--silver-500)',fontSize:'var(--fs-sm)'}}>Participaciones</span>
+          <span style={{color:'var(--silver-100)',fontWeight:600}}>{qty}</span>
+        </div>
+        <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+          <span style={{color:'var(--silver-500)',fontSize:'var(--fs-sm)'}}>Precio unitario</span>
+          <span style={{color:'var(--silver-100)',fontWeight:600}}>$3.000</span>
+        </div>
+        <div style={{height:1,background:'rgba(255,255,255,.07)',margin:'10px 0'}}/>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <span style={{color:'var(--silver-100)',fontWeight:700}}>Total</span>
+          <span style={{fontSize:'1.2rem',fontWeight:800,color:'var(--silver-100)',fontVariantNumeric:'tabular-nums'}}>
+            ${(qty*3000).toLocaleString('es-CL')}
+          </span>
+        </div>
+      </div>
+
+      <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:20}}>
         {methods.map(m => (
-          <div key={m.id} onClick={()=>setMethod(m.id)} style={{
-            display:'flex',alignItems:'center',gap:'var(--space-3)',
-            padding:'var(--space-3) var(--space-4)',
-            background:method===m.id?'rgba(212,175,55,.08)':'var(--bg-elevated)',
-            border:`1.5px solid ${method===m.id?'var(--gold-500)':'rgba(255,255,255,.08)'}`,
-            borderRadius:'var(--radius-md)',cursor:'pointer',
-            transition:'all .18s',
-          }}>
+          <div key={m.id} className={`method-card${method===m.id?' selected':''}`} onClick={()=>setMethod(m.id)}>
             <div style={{
               width:18,height:18,borderRadius:'50%',flexShrink:0,
               border:`2px solid ${method===m.id?'var(--gold-500)':'rgba(255,255,255,.2)'}`,
               background:method===m.id?'var(--gold-500)':'transparent',
               display:'flex',alignItems:'center',justifyContent:'center',
             }}>
-              {method===m.id && <div style={{width:6,height:6,borderRadius:'50%',background:'#1A1407'}}/>}
+              {method===m.id&&<div style={{width:6,height:6,borderRadius:'50%',background:'#0A0A0B'}}/>}
             </div>
             <div>
               <div style={{fontWeight:600,color:'var(--silver-100)',fontSize:'var(--fs-sm)'}}>{m.label}</div>
-              <div style={{fontSize:'var(--fs-xs)',color:'var(--silver-500)'}}>{m.sub}</div>
+              <div style={{fontSize:'var(--fs-xs)',color:'var(--silver-500)',marginTop:2}}>{m.sub}</div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Email notice */}
-      <div style={{
-        padding:'var(--space-3)',background:'rgba(255,176,32,.08)',
-        border:'1px solid rgba(255,176,32,.2)',borderRadius:'var(--radius-sm)',
-        fontSize:'var(--fs-xs)',color:'var(--warning)',lineHeight:1.5,
-        marginBottom:'var(--space-6)',
-      }}>
-        Los correos de confirmación pueden tardar unos minutos. Tu participación queda registrada inmediatamente tras el pago.
-      </div>
-
-      <div style={{display:'flex',flexDirection:'column',gap:'var(--space-3)'}}>
-        <Button variant="primary" fullWidth size="lg" onClick={handlePay} disabled={loading}>
-          {loading ? 'Procesando…' : `Pagar $${(qty*3000).toLocaleString('es-CL')} con ${methods.find(m=>m.id===method)?.label}`}
-        </Button>
-        <Button variant="ghost" fullWidth onClick={onBack} disabled={loading}>Volver</Button>
+      <div style={{display:'flex',flexDirection:'column',gap:10}}>
+        <button className="cta-btn" onClick={handlePay} disabled={loading}>
+          {loading?'Procesando…':`Pagar $${(qty*3000).toLocaleString('es-CL')} →`}
+        </button>
+        <button className="ghost-btn" onClick={onBack} disabled={loading}>Volver</button>
       </div>
     </div>
   );
 }
 
-/* ── Step 3: Confirmation ── */
+/* ─── Step 3: Confirmation ───────────────────────────── */
 function StepConfirm({ qty, onClose }) {
-  const ticketNum = React.useMemo(() => String(Math.floor(Math.random()*89999+10000)), []);
+  const ticket = React.useMemo(()=>String(Math.floor(Math.random()*89999+10000)),[]);
   return (
-    <div className="step-panel" style={{textAlign:'center'}}>
-      <div className="success-icon" style={{
-        width:80,height:80,borderRadius:'50%',
+    <div className="panel-in" style={{textAlign:'center'}}>
+      <div className="success-pop" style={{
+        width:72,height:72,borderRadius:'50%',
         background:'rgba(52,199,89,.12)',border:'2px solid var(--success)',
         display:'flex',alignItems:'center',justifyContent:'center',
-        margin:'0 auto var(--space-6)',
-        fontSize:'2rem',color:'var(--success)',
+        margin:'0 auto 20px',fontSize:'1.8rem',color:'var(--success)',
       }}>✓</div>
-
-      <h2 style={{
-        fontFamily:'var(--font-display)',fontSize:'var(--fs-h2)',fontWeight:800,
-        color:'var(--silver-100)',marginBottom:'var(--space-3)',
-      }}>¡Ya estás participando!</h2>
-      <p style={{fontSize:'var(--fs-sm)',color:'var(--silver-500)',marginBottom:'var(--space-8)',lineHeight:'var(--lh-body)'}}>
-        Tu pago fue procesado exitosamente. Recibirás una confirmación por correo con todos los detalles.
+      <h3 style={{
+        fontFamily:'var(--font-display)',fontWeight:700,
+        fontSize:'var(--fs-h3)',color:'var(--silver-100)',marginBottom:8,
+      }}>¡Ya estás participando!</h3>
+      <p style={{fontSize:'var(--fs-sm)',color:'var(--silver-500)',marginBottom:24,lineHeight:1.6}}>
+        Tu pago fue procesado exitosamente. Recibirás confirmación por correo con todos los detalles.
       </p>
-
-      {/* Ticket */}
       <div style={{
-        background:'var(--bg-elevated)',borderRadius:'var(--radius-lg)',
-        border:'1px solid rgba(255,255,255,.06)',padding:'var(--space-6)',
-        marginBottom:'var(--space-6)',
-        backgroundImage:'var(--grad-border)',
-        backgroundOrigin:'border-box',
-        backgroundClip:'padding-box',
-        position:'relative',
+        background:'var(--bg-elevated)',borderRadius:12,
+        border:'1px solid rgba(212,175,55,.2)',padding:20,marginBottom:20,
       }}>
-        <div style={{position:'absolute',inset:0,borderRadius:'var(--radius-lg)',border:'1px solid transparent',backgroundImage:'var(--grad-border)',backgroundOrigin:'border-box',backgroundClip:'border-box',mask:'linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0)',WebkitMask:'linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0)',maskComposite:'exclude',WebkitMaskComposite:'xor'}}/>
-        <div style={{fontSize:'var(--fs-xs)',fontWeight:600,letterSpacing:'var(--ls-caps)',textTransform:'uppercase',color:'var(--silver-500)',marginBottom:'var(--space-2)'}}>
+        <div style={{fontSize:'var(--fs-xs)',fontWeight:600,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--silver-500)',marginBottom:8}}>
           Tu número de participación
         </div>
         <div style={{
-          fontFamily:'var(--font-mono)',fontSize:'3rem',fontWeight:700,
-          fontVariantNumeric:'tabular-nums',lineHeight:1,
+          fontFamily:'var(--font-mono)',fontSize:'2.6rem',fontWeight:700,
+          letterSpacing:'.04em',lineHeight:1,
           background:'var(--grad-gold)',WebkitBackgroundClip:'text',
-          WebkitTextFillColor:'transparent',backgroundClip:'text',
-          marginBottom:'var(--space-2)',
-        }}>#{ticketNum}</div>
+          WebkitTextFillColor:'transparent',backgroundClip:'text',marginBottom:8,
+        }}>#{ticket}</div>
         <div style={{fontSize:'var(--fs-xs)',color:'var(--silver-700)'}}>
-          {qty} participaci{qty===1?'ón':'ones'} · ${ (qty*3000).toLocaleString('es-CL') } CLP
+          {qty} participaci{qty===1?'ón':'ones'} · ${(qty*3000).toLocaleString('es-CL')} CLP
         </div>
       </div>
-
-      {/* Wallpaper notice */}
       <div style={{
         background:'rgba(212,175,55,.06)',border:'1px solid rgba(212,175,55,.15)',
-        borderRadius:'var(--radius-md)',padding:'var(--space-4)',
-        fontSize:'var(--fs-sm)',color:'var(--gold-400)',
-        marginBottom:'var(--space-6)',lineHeight:1.5,
+        borderRadius:10,padding:14,
+        fontSize:'var(--fs-xs)',color:'var(--gold-400)',lineHeight:1.5,marginBottom:24,
       }}>
-        Tu fondo de pantalla exclusivo está en camino. Llegará al mismo correo que la confirmación.
+        Tu fondo de pantalla exclusivo llegará al mismo correo de confirmación en los próximos minutos.
       </div>
-
-      <Button variant="primary" fullWidth size="lg" onClick={onClose}>
-        Cerrar
-      </Button>
+      <button className="cta-btn" onClick={onClose}>Cerrar</button>
     </div>
   );
 }
 
-/* ── Main App ── */
+/* ─── Main App ───────────────────────────────────────── */
 function App() {
-  const [step, setStep] = React.useState(0);
-  const [qty, setQty] = React.useState(5);
+  const [step,setStep]         = React.useState(0);   // starts at qty selection
+  const [qty,setQty]           = React.useState(10);
+  const [userName,setUserName] = React.useState('');
+  const [userEmail,setUserEmail] = React.useState('');
 
-  const reset = () => setStep(0);
+  const isLoggedIn = !!userName;
+
+  const handleContinueFromQty = () => {
+    if (isLoggedIn) setStep(2);   // skip auth if already logged in
+    else            setStep(1);   // show auth step
+  };
+  const handleAuth = (email) => {
+    const name = email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    setUserEmail(email); setUserName(name); setStep(2);
+  };
+  const handleLogout = () => { setUserName(''); setUserEmail(''); };
+  const reset = () => { setStep(0); setQty(10); setUserName(''); setUserEmail(''); };
 
   return (
-    <div style={{
-      display:'grid',
-      gridTemplateColumns:'1fr 480px 1fr',
-      minHeight:'100vh',
-      alignItems:'center',
-    }}>
-      <div/>
-      {/* Modal panel */}
-      <div style={{
-        background:'var(--bg-surface)',
-        borderRadius:'var(--radius-lg)',
-        border:'1px solid rgba(255,255,255,.09)',
-        boxShadow:'var(--shadow-card)',
-        overflow:'hidden',
-        width:'100%',
+    <div>
+      <h1 style={{
+        textAlign:'center',
+        fontFamily:'var(--font-display)',fontWeight:800,
+        fontSize:'clamp(1.8rem,4vw,2.8rem)',
+        color:'var(--silver-100)',marginBottom:48,letterSpacing:'-.01em',
       }}>
-        {/* Gold top accent */}
-        <div style={{height:3,background:'var(--grad-gold)'}}/>
+        Compra tu participación
+      </h1>
 
-        <div style={{padding:'var(--space-8)'}}>
-          {/* Logo */}
-          <div style={{display:'flex',alignItems:'center',gap:'var(--space-3)',marginBottom:'var(--space-6)'}}>
-            <img src="../../assets/logo.jpg" alt="Súbete y Gana" style={{width:36,height:36,objectFit:'contain',borderRadius:6}}/>
-            <span style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:'var(--fs-sm)',color:'var(--silver-300)'}}>Súbete y Gana</span>
+      <div style={{
+        display:'grid',gridTemplateColumns:'220px 1fr',
+        gap:48,alignItems:'start',maxWidth:840,margin:'0 auto',
+      }}>
+        <StepsSidebar current={step}/>
+
+        <div style={{
+          background:'var(--bg-surface)',borderRadius:16,
+          border:'1px solid rgba(255,255,255,.08)',
+          boxShadow:'0 8px 40px rgba(0,0,0,.45)',overflow:'hidden',
+        }}>
+          <div style={{height:3,background:'var(--grad-gold)'}}/>
+          <div style={{padding:'28px 32px 32px'}}>
+            {step===0 && (
+              <StepQuantity
+                qty={qty} setQty={setQty}
+                userName={userName} onLogout={handleLogout}
+                onNext={handleContinueFromQty}
+              />
+            )}
+            {step===1 && <StepAuth onNext={handleAuth} onBack={()=>setStep(0)}/>}
+            {step===2 && <StepPay qty={qty} onNext={()=>setStep(3)} onBack={()=>setStep(isLoggedIn?0:1)}/>}
+            {step===3 && <StepConfirm qty={qty} onClose={reset}/>}
           </div>
-
-          <StepBar current={step}/>
-
-          {step===0 && <StepSelect qty={qty} setQty={setQty} onNext={()=>setStep(1)}/>}
-          {step===1 && <StepData onNext={()=>setStep(2)} onBack={()=>setStep(0)}/>}
-          {step===2 && <StepPay qty={qty} onNext={()=>setStep(3)} onBack={()=>setStep(1)}/>}
-          {step===3 && <StepConfirm qty={qty} onClose={reset}/>}
         </div>
       </div>
-      <div/>
     </div>
   );
 }
