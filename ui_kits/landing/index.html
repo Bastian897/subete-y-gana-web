@@ -302,7 +302,15 @@ function HowItWorks() {
 
 /* ── Participation section ── */
 function ParticipationSection({ onBuy }) {
-  const [qty, setQty] = React.useState(5);
+  const [qty, setQty] = React.useState(10);
+
+  const steps = [
+    { label:'Decide la cantidad', desc:'Cuántas participaciones quieres' },
+    { label:'Inicia sesión',      desc:'Verificaremos tu correo'         },
+    { label:'Pagar con tarjeta',  desc:'Efectúa el pago'                 },
+    { label:'Confirmación',       desc:'¡Proceso completado!'            },
+  ];
+
   return (
     <section style={{
       padding:'var(--space-24) var(--space-8)',
@@ -310,42 +318,107 @@ function ParticipationSection({ onBuy }) {
       borderTop:'1px solid rgba(255,255,255,.05)',
       borderBottom:'1px solid rgba(255,255,255,.05)',
     }}>
-      <div style={{maxWidth:620,margin:'0 auto',textAlign:'center'}}>
-        <div style={{
-          fontSize:'var(--fs-xs)',fontWeight:600,letterSpacing:'var(--ls-caps)',
-          textTransform:'uppercase',color:'var(--gold-500)',marginBottom:'var(--space-3)',
-        }}>Participar</div>
-        <h2 style={{
-          fontFamily:'var(--font-display)',fontSize:'var(--fs-h1)',fontWeight:800,
-          color:'var(--silver-100)',marginBottom:'var(--space-4)',lineHeight:'var(--lh-heading)',
-        }}>Elige tus participaciones</h2>
-        <p style={{fontSize:'var(--fs-sm)',color:'var(--silver-500)',marginBottom:'var(--space-8)'}}>
-          Más participaciones = más oportunidades de ganar la Silverado.
-        </p>
-        <Card variant="premium">
-          <div style={{padding:'var(--space-6)'}}>
-            <ParticipationSelector onChange={setQty}/>
-            <div style={{marginTop:'var(--space-6)'}}>
-              <Button variant="primary" fullWidth size="lg" onClick={onBuy}>
-                Comprar {qty} participaci{qty===1?'ón':'ones'}
-              </Button>
-            </div>
-            {/* Email notice */}
-            <div style={{
-              marginTop:'var(--space-4)',
-              padding:'var(--space-3) var(--space-4)',
-              background:'rgba(255,176,32,.08)',
-              border:'1px solid rgba(255,176,32,.2)',
-              borderRadius:'var(--radius-sm)',
-              fontSize:'var(--fs-xs)',
-              color:'var(--warning)',
-              textAlign:'left',
-              lineHeight:1.5,
-            }}>
-              Los correos de confirmación pueden tardar unos minutos. Tu participación queda registrada inmediatamente tras el pago.
+      <div style={{maxWidth:900,margin:'0 auto'}}>
+
+        {/* Section heading */}
+        <div style={{textAlign:'center',marginBottom:48}}>
+          <div style={{fontSize:'var(--fs-xs)',fontWeight:600,letterSpacing:'var(--ls-caps)',textTransform:'uppercase',color:'var(--gold-500)',marginBottom:12}}>
+            Participar
+          </div>
+          <h2 style={{fontFamily:'var(--font-display)',fontSize:'var(--fs-h1)',fontWeight:800,color:'var(--silver-100)',lineHeight:'var(--lh-heading)'}}>
+            Compra tu participación
+          </h2>
+        </div>
+
+        {/* Two-column layout */}
+        <div style={{display:'grid',gridTemplateColumns:'200px 1fr',gap:48,alignItems:'start'}}>
+
+          {/* Left: steps */}
+          <div style={{display:'flex',flexDirection:'column',gap:28}}>
+            {steps.map((s,i) => {
+              const active = i===0;
+              return (
+                <div key={i} style={{display:'flex',gap:14,alignItems:'flex-start'}}>
+                  <div style={{
+                    width:36,height:36,borderRadius:'50%',flexShrink:0,
+                    background: active ? 'var(--gold-500)' : 'var(--bg-surface)',
+                    border: active ? 'none' : '1.5px solid rgba(255,255,255,.12)',
+                    display:'flex',alignItems:'center',justifyContent:'center',
+                    fontWeight:700,fontSize:14,
+                    color: active ? '#0A0A0B' : 'var(--silver-700)',
+                  }}>{i+1}</div>
+                  <div style={{paddingTop:4}}>
+                    <div style={{fontSize:14,fontWeight:600,lineHeight:1.3,color:active?'var(--silver-100)':'var(--silver-700)'}}>{s.label}</div>
+                    <div style={{fontSize:12,marginTop:3,lineHeight:1.4,color:active?'var(--silver-500)':'var(--silver-700)'}}>{s.desc}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Right: form card */}
+          <div style={{
+            background:'var(--bg-surface)',borderRadius:16,
+            border:'1px solid rgba(255,255,255,.08)',
+            boxShadow:'0 8px 40px rgba(0,0,0,.4)',overflow:'hidden',
+          }}>
+            <div style={{height:3,background:'var(--grad-gold)'}}/>
+            <div style={{padding:'28px 32px 32px'}}>
+
+              <h3 style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:'var(--fs-h3)',color:'var(--silver-100)',marginBottom:20}}>
+                Selecciona tus participaciones
+              </h3>
+
+              <div style={{fontSize:'var(--fs-sm)',color:'var(--silver-500)',marginBottom:12}}>
+                Cantidad de participaciones:
+              </div>
+
+              {/* Preset chips */}
+              <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:20}}>
+                {[5,10,25,50,100].map(n => {
+                  const active = qty===n;
+                  return (
+                    <button key={n} onClick={()=>setQty(n)} style={{
+                      height:40,minWidth:48,padding:'0 14px',borderRadius:8,
+                      background:'transparent',
+                      border:`1.5px solid ${active?'var(--gold-400)':'rgba(255,255,255,.1)'}`,
+                      color:active?'var(--gold-400)':'var(--silver-300)',
+                      fontWeight:600,fontSize:14,cursor:'pointer',
+                      transition:'all .15s',fontFamily:'var(--font-body)',
+                    }}>{n}</button>
+                  );
+                })}
+              </div>
+
+              {/* Stepper + total */}
+              <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:28}}>
+                <div style={{display:'flex',borderRadius:8,overflow:'hidden'}}>
+                  <button onClick={()=>setQty(q=>Math.max(1,q-1))} style={{width:38,height:38,background:'var(--bg-elevated)',border:'1px solid rgba(255,255,255,.12)',borderRadius:'8px 0 0 8px',color:'var(--silver-100)',fontSize:'1.2rem',cursor:'pointer',fontFamily:'var(--font-body)'}}>−</button>
+                  <div style={{width:52,height:38,display:'flex',alignItems:'center',justifyContent:'center',background:'var(--bg-elevated)',borderTop:'1px solid rgba(255,255,255,.12)',borderBottom:'1px solid rgba(255,255,255,.12)',color:'var(--silver-100)',fontWeight:700,fontSize:14,fontVariantNumeric:'tabular-nums'}}>{qty}</div>
+                  <button onClick={()=>setQty(q=>q+1)} style={{width:38,height:38,background:'var(--bg-elevated)',border:'1px solid rgba(255,255,255,.12)',borderRadius:'0 8px 8px 0',color:'var(--silver-100)',fontSize:'1.2rem',cursor:'pointer',fontFamily:'var(--font-body)'}}>+</button>
+                </div>
+                <div>
+                  <span style={{fontSize:'var(--fs-sm)',color:'var(--silver-500)'}}>A pagar: </span>
+                  <span style={{fontSize:'1.25rem',fontWeight:800,color:'var(--silver-100)',fontVariantNumeric:'tabular-nums'}}>${(qty*3000).toLocaleString('es-CL')}</span>
+                </div>
+              </div>
+
+              <button onClick={onBuy} style={{
+                width:'100%',height:50,borderRadius:10,border:'none',
+                background:'var(--gold-400)',color:'#0A0A0B',
+                fontWeight:700,fontSize:'var(--fs-body)',cursor:'pointer',
+                fontFamily:'var(--font-body)',letterSpacing:'.01em',
+                transition:'filter .15s,transform .1s',
+              }}
+                onMouseEnter={e=>e.currentTarget.style.filter='brightness(1.08)'}
+                onMouseLeave={e=>e.currentTarget.style.filter='none'}
+              >
+                Continuar →
+              </button>
+
             </div>
           </div>
-        </Card>
+        </div>
       </div>
     </section>
   );
