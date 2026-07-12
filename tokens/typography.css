@@ -2,17 +2,17 @@
    SÚBETE Y GANA — Typography Tokens
    ============================================================ */
 
-/* Google Fonts — Poppins (display) + Inter (UI/body) + Geist Mono (numeric) */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+/* Google Fonts — Big Shoulders Display (display) + Instrument Sans (UI/body) + Geist Mono (numeric) */
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800;900&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap');
 
-/* Note: Clash Display is not on Google Fonts. Poppins ExtraBold is the
-   nearest high-impact display substitute. Replace with Clash Display
-   (https://www.fontshare.com/fonts/clash-display) once files are available. */
+/* Big Shoulders Display: tall, condensed, industrial — signage/scoreboard
+   character that suits the raffle-ticket / automotive tone. Instrument Sans
+   pairs as a warmer, more characterful body face than the usual Inter. */
 
 :root {
   /* --- Font Families --------------------------------------- */
-  --font-display: 'Poppins', system-ui, sans-serif; /* @kind font */
-  --font-body:    'Inter', system-ui, sans-serif; /* @kind font */
+  --font-display: 'Big Shoulders Display', system-ui, sans-serif; /* @kind font */
+  --font-body:    'Instrument Sans', system-ui, sans-serif; /* @kind font */
   --font-mono:    'Geist Mono', 'Courier New', monospace; /* @kind font */
 
   /* --- Type Scale (responsive clamp) ---------------------- */

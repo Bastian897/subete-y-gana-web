@@ -14,9 +14,20 @@ html {
   font-size: var(--fs-body);
   line-height: var(--lh-body);
   color: var(--silver-100);
-  background-color: var(--bg-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Atmospheric base: warm gold haze top-left, ember glow bottom-right,
+   faint diagonal hairlines for texture — replaces the flat black field. */
+body {
+  background-color: var(--bg-base);
+  background-image:
+    radial-gradient(ellipse 65% 45% at 18% -8%, rgba(245,200,66,.10) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 40% at 100% 105%, rgba(193,68,38,.09) 0%, transparent 58%),
+    repeating-linear-gradient(125deg, rgba(255,255,255,.014) 0px, rgba(255,255,255,.014) 1px, transparent 1px, transparent 56px),
+    linear-gradient(170deg, #111113 0%, #0A0A0B 45%, #060607 100%);
+  background-attachment: fixed;
 }
 
 /* Utility: gold gradient text */
