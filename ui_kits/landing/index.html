@@ -898,19 +898,24 @@ function gameCreateSfx() {
   };
 }
 
-/* Física y balance del runner */
+/* Física y balance del runner — todo expresado como fracción del canvas
+   (ancho para velocidad, alto para el salto) para que la dificultad se
+   sienta igual sin importar el tamaño real de la pantalla. Antes la
+   velocidad estaba en píxeles absolutos, así que en pantallas angostas
+   (celular) el mismo obstáculo cruzaba mucho más rápido en tiempo real,
+   volviendo el salto imposible de calcular a tiempo. */
 const GROUND_RATIO = 0.76;
-const GRAVITY = 2400;
-const JUMP_VELOCITY = -800;
 const DUCK_SCALE = 0.55;
-const BASE_SPEED = 260;
-const MAX_SPEED = 640;
-const SPEED_RAMP = 5.5;
-// Tiempo total que la camioneta pasa en el aire durante un salto (subida + bajada).
-// El hueco entre obstáculos NUNCA puede ser menor a esto, o un salto no alcanza
-// a completarse antes de que llegue el siguiente obstáculo (imposible de esquivar).
-const JUMP_AIRTIME = (2 * Math.abs(JUMP_VELOCITY)) / GRAVITY;
-const MIN_SPAWN_INTERVAL = JUMP_AIRTIME * 1.6; // margen de seguridad + tiempo de reacción
+const SPEED_FRAC_BASE = 0.34;  // fracción del ancho del canvas por segundo, al inicio
+const SPEED_FRAC_MAX = 0.75;   // fracción máxima al ritmo más difícil
+const SPEED_FRAC_RAMP = 0.005; // cuánto sube por segundo
+const JUMP_AIRTIME = 0.85;     // segundos que dura el salto completo (subida + bajada)
+const JUMP_HEIGHT_FRAC = 0.5;  // altura máxima del salto, como fracción del alto del canvas
+// El hueco entre obstáculos NUNCA puede ser menor al tiempo de salto + margen,
+// o un salto no alcanza a completarse antes de que llegue el siguiente obstáculo
+// (imposible de esquivar).
+const MIN_SPAWN_INTERVAL = JUMP_AIRTIME * 1.5;
+const HITBOX_MARGIN = 0.16; // encoge las cajas de colisión ~16% para perdonar casi-choques
 
 function GameCanvas({ onGameOver, driverImg }) {
   const canvasRef = React.useRef(null);
@@ -941,6 +946,10 @@ function GameCanvas({ onGameOver, driverImg }) {
     const truckW = () => height * 0.34;
     const truckXpos = () => width * 0.16;
     const groundY = () => height * GROUND_RATIO;
+    // Gravedad y velocidad de salto derivadas del alto actual del canvas, para que
+    // el salto siempre alcance la misma altura relativa y dure lo mismo (JUMP_AIRTIME).
+    const gravityNow = () => (8 * height * JUMP_HEIGHT_FRAC) / (JUMP_AIRTIME * JUMP_AIRTIME);
+    const jumpVelocityNow = () => -(4 * height * JUMP_HEIGHT_FRAC) / JUMP_AIRTIME;
 
     let vy = 0;
     let airY = 0; // altura sobre el suelo (0 = en el suelo)
@@ -951,7 +960,7 @@ function GameCanvas({ onGameOver, driverImg }) {
     let bgFar = 0, bgMid = 0, bgGround = 0; // desplazamiento de parallax
     let spawnTimer = 0;
     let spawnInterval = 1.4;
-    let gameSpeed = BASE_SPEED;
+    let gameSpeed = width * SPEED_FRAC_BASE;
     let distance = 0;
     let score = 0;
     let elapsed = 0;
@@ -962,7 +971,7 @@ function GameCanvas({ onGameOver, driverImg }) {
     function doJump() {
       if (jumping || ducking) return;
       jumping = true;
-      vy = JUMP_VELOCITY;
+      vy = jumpVelocityNow();
       sfx.jump();
     }
     function setDuck(v) {
@@ -985,7 +994,7 @@ function GameCanvas({ onGameOver, driverImg }) {
     canvas.addEventListener('pointerdown', onPointerDown);
 
     function spawnObstacle() {
-      const canFly = score > 120 && Math.random() < 0.3;
+      const canFly = elapsed > 14 && Math.random() < 0.3;
       if (canFly) {
         const bw = height * 0.30;
         obstacles.push({ x: width + bw, w: bw, type: 'sign' });
@@ -1018,6 +1027,11 @@ function GameCanvas({ onGameOver, driverImg }) {
 
     function rectsOverlap(a, b) {
       return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+    }
+
+    function shrinkRect(r, marginFrac) {
+      const mw = r.w * marginFrac, mh = r.h * marginFrac;
+      return { x: r.x + mw / 2, y: r.y + mh / 2, w: r.w - mw, h: r.h - mh };
     }
 
     function lerpColor(c1, c2, t) {
@@ -1206,16 +1220,17 @@ function GameCanvas({ onGameOver, driverImg }) {
       last = now;
       elapsed += dt;
 
-      gameSpeed = Math.min(BASE_SPEED + elapsed * SPEED_RAMP, MAX_SPEED);
-      distance += gameSpeed * dt;
-      const newScore = Math.floor(distance / 12);
+      const speedFrac = Math.min(SPEED_FRAC_BASE + elapsed * SPEED_FRAC_RAMP, SPEED_FRAC_MAX);
+      gameSpeed = width * speedFrac;
+      distance += speedFrac * dt; // distancia normalizada: no depende del ancho de pantalla
+      const newScore = Math.floor(distance * 50);
       if (newScore !== score) {
-        if (Math.floor(newScore / 50) !== Math.floor(score / 50)) sfx.tick();
+        if (Math.floor(newScore / 250) !== Math.floor(score / 250)) sfx.tick();
         score = newScore;
       }
 
       if (jumping) {
-        vy += GRAVITY * dt;
+        vy += gravityNow() * dt;
         airY -= vy * dt;
         if (airY <= 0) { airY = 0; jumping = false; vy = 0; }
       }
@@ -1224,7 +1239,7 @@ function GameCanvas({ onGameOver, driverImg }) {
       bgMid += gameSpeed * 0.42 * dt;
       bgGround += gameSpeed * dt;
 
-      spawnInterval = Math.max(1.6 - elapsed * 0.009, MIN_SPAWN_INTERVAL);
+      spawnInterval = Math.max(1.8 - elapsed * 0.008, MIN_SPAWN_INTERVAL);
       spawnTimer += dt;
       if (spawnTimer >= spawnInterval) { spawnTimer = 0; spawnObstacle(); }
 
@@ -1264,8 +1279,9 @@ function GameCanvas({ onGameOver, driverImg }) {
       drawTruck(tr, distance * 0.05, bob);
 
       let hit = false;
+      const trShrunk = shrinkRect(tr, HITBOX_MARGIN);
       for (const o of obstacles) {
-        if (rectsOverlap(tr, obstacleRect(o))) { hit = true; break; }
+        if (rectsOverlap(trShrunk, shrinkRect(obstacleRect(o), HITBOX_MARGIN))) { hit = true; break; }
       }
 
       setHud({ score });
