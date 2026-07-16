@@ -987,11 +987,38 @@ function GameCanvas({ onGameOver, driverImg }) {
     function onKeyUp(e) {
       if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') setDuck(false);
     }
-    function onPointerDown(e) { e.preventDefault(); doJump(); }
+    // En touch no hay flecha ↓, así que la mitad inferior del canvas agacha
+    // (mantener presionado) y la mitad superior salta (toque corto). Sin esto,
+    // los carteles voladores (que solo se esquivan agachado) eran imposibles
+    // de evitar en celular.
+    let duckPointerId = null;
+    function onPointerDown(e) {
+      e.preventDefault();
+      if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+        const rect = canvas.getBoundingClientRect();
+        const relY = (e.clientY - rect.top) / rect.height;
+        if (relY > 0.55) {
+          duckPointerId = e.pointerId;
+          setDuck(true);
+        } else {
+          doJump();
+        }
+      } else {
+        doJump();
+      }
+    }
+    function onPointerUp(e) {
+      if (e.pointerId === duckPointerId) {
+        duckPointerId = null;
+        setDuck(false);
+      }
+    }
 
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
     canvas.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('pointercancel', onPointerUp);
 
     function spawnObstacle() {
       const canFly = elapsed > 14 && Math.random() < 0.3;
@@ -1338,6 +1365,8 @@ function GameCanvas({ onGameOver, driverImg }) {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
       canvas.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointercancel', onPointerUp);
     };
   }, [driverImg]);
 
@@ -1416,7 +1445,7 @@ function GameSection({ onBuy }) {
           }}>el desafío</span>
         </h2>
         <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--silver-500)', maxWidth: 560, margin: '0 auto', lineHeight: 'var(--lh-body)' }}>
-          Elige quién maneja la Silverado y salta los obstáculos del camino. Espacio / ↑ o toca la pantalla para saltar, ↓ para agacharte.
+          Elige quién maneja la Silverado y salta los obstáculos del camino. Espacio / ↑ o toca arriba para saltar; ↓ o mantén presionada la parte baja de la pantalla para agacharte.
         </p>
       </div>
 
@@ -1486,7 +1515,7 @@ function GameSection({ onBuy }) {
                       {driver.name} ya puede manejar
                     </h3>
                     <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--silver-500)' }}>
-                      Espacio / ↑ o toca para saltar · ↓ para agacharte
+                      Espacio / ↑ o toca arriba para saltar · ↓ o mantén presionada la parte baja para agacharte
                     </p>
                     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
                       <Button variant="primary" size="md" onClick={() => setPhase('playing')}>Jugar</Button>
