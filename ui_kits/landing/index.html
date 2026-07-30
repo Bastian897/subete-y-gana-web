@@ -283,6 +283,8 @@ function Header({ onBuy }) {
 function Hero({ onBuy, stockRefresh }) {
   const drawDate = new Date(Date.now() + 18*86400000 + 7*3600000).toISOString();
   const [stock, setStock] = React.useState({ sold: 0, total: 25000 });
+  const heroVideoRef = React.useRef(null);
+  const hoverPlayback = React.useRef(false);
 
   React.useEffect(() => {
     fetch('/api/stock')
@@ -290,6 +292,15 @@ function Hero({ onBuy, stockRefresh }) {
       .then(d => setStock({ sold: d.sold, total: d.total }))
       .catch(() => {});
   }, [stockRefresh]);
+
+  React.useEffect(() => {
+    // En touch no hay cursor para "hover", así que ahí se mantiene el autoplay normal.
+    hoverPlayback.current = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (hoverPlayback.current && heroVideoRef.current) heroVideoRef.current.pause();
+  }, []);
+
+  const handleVisualEnter = () => { if (hoverPlayback.current) heroVideoRef.current?.play(); };
+  const handleVisualLeave = () => { if (hoverPlayback.current) heroVideoRef.current?.pause(); };
 
   return (
     <section style={{
@@ -304,9 +315,13 @@ function Hero({ onBuy, stockRefresh }) {
         display:'flex',
         flexDirection:'column',
         alignItems:'center',
-      }}>
-        {/* Looping 360° turn of the Silverado on the spotlight pedestal */}
+      }}
+        onMouseEnter={handleVisualEnter}
+        onMouseLeave={handleVisualLeave}
+      >
+        {/* Giro 360° de la Silverado en el pedestal con foco — se reproduce al pasar el mouse (desktop), autoplay en touch */}
         <video
+          ref={heroVideoRef}
           className="hero-visual-video"
           autoPlay muted loop playsInline preload="auto"
           poster="../../assets/atmosphere/hero-silverado-poster.webp"
