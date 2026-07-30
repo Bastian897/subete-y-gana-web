@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panel de admin — Súbete y Gana</title>
+<link rel="stylesheet" href="../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  body{background:var(--bg-base);min-height:100vh}
+  button{font-family:var(--font-body);cursor:pointer}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  input{font-family:var(--font-body)}
+  table{border-collapse:collapse;width:100%}
+  th,td{text-align:left;padding:10px 12px;font-size:13px}
+  th{color:var(--silver-500);font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:11px;border-bottom:1px solid rgba(255,255,255,.08)}
+  td{color:var(--silver-100);border-bottom:1px solid rgba(255,255,255,.05)}
+  .card{background:var(--bg-elevated);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:20px}
+  .input-field{width:100%;height:44px;border-radius:8px;background:var(--bg-elevated);border:1.5px solid rgba(255,255,255,.1);color:var(--silver-100);font-size:14px;padding:0 14px;outline:none}
+  .input-field:focus{border-color:var(--gold-500)}
+  .cta-btn{height:44px;padding:0 20px;border-radius:8px;border:none;background:var(--gold-400);color:#0A0A0B;font-weight:700;font-size:14px}
+  .cta-btn:hover:not(:disabled){filter:brightness(1.08)}
+  .ghost-btn{height:40px;padding:0 16px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--silver-300);font-size:13px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+
+// Anon key + URL son públicos por diseño (protegidos por RLS en las tablas
+// reales); solo se usan acá para autenticar y obtener el JWT que después se
+// manda como Bearer a /api/admin/*, que sí valida contra ADMIN_EMAILS server-side.
+const SUPABASE_URL = 'https://xkyfkkdtngpjymfwhahy.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhreWZra2R0bmdwanltZndoYWh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0Mjg5MzcsImV4cCI6MjEwMTAwNDkzN30.Q_Au75oBwECL5_ai2xu2FaKFeRioZ8EemSjkqyNx78I';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function formatCLP(n) { return '$' + Number(n || 0).toLocaleString('es-CL'); }
+
+function LoginForm({ onLogin }) {
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [err, setErr] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setLoading(true); setErr('');
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    if (error) { setErr('Correo o contraseña incorrectos.'); return; }
+    onLogin(data.session.access_token, data.session.user.email);
+  };
+
+  return (
+    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
+      <form onSubmit={submit} className="card" style={{width:'100%',maxWidth:360}}>
+        <h1 style={{fontFamily:'var(--font-display)',fontSize:22,fontWeight:700,color:'var(--silver-100)',marginBottom:4}}>Panel de admin</h1>
+        <p style={{fontSize:13,color:'var(--silver-500)',marginBottom:20}}>Súbete y Gana</p>
+        <label style={{display:'block',fontSize:11,fontWeight:600,color:'var(--silver-500)',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:6}}>Correo</label>
+        <input className="input-field" type="email" value={email} onChange={e=>setEmail(e.target.value)} style={{marginBottom:14}} required/>
+        <label style={{display:'block',fontSize:11,fontWeight:600,color:'var(--silver-500)',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:6}}>Contraseña</label>
+        <input className="input-field" type="password" value={password} onChange={e=>setPassword(e.target.value)} style={{marginBottom:14}} required/>
+        {err && <p style={{fontSize:12,color:'var(--danger)',marginBottom:12}}>{err}</p>}
+        <button className="cta-btn" style={{width:'100%'}} disabled={loading}>{loading?'Entrando…':'Entrar'}</button>
+      </form>
+    </div>
+  );
+}
+
+function StockCards({ stock }) {
+  if (!stock) return null;
+  const items = [
+    { label: 'Vendidos', value: stock.sold.toLocaleString('es-CL') },
+    { label: 'Disponibles', value: stock.remaining.toLocaleString('es-CL') },
+    { label: 'Total', value: stock.total.toLocaleString('es-CL') },
+    { label: 'Recaudado', value: formatCLP(stock.sold * 3000) },
+  ];
+  return (
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:12,marginBottom:24}}>
+      {items.map(i => (
+        <div key={i.label} className="card">
+          <div style={{fontSize:11,color:'var(--silver-500)',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:6}}>{i.label}</div>
+          <div style={{fontSize:22,fontWeight:800,color:'var(--silver-100)',fontVariantNumeric:'tabular-nums'}}>{i.value}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Dashboard({ token, email, onLogout }) {
+  const [stock, setStock] = React.useState(null);
+  const [orders, setOrders] = React.useState([]);
+  const [total, setTotal] = React.useState(0);
+  const [page, setPage] = React.useState(1);
+  const [q, setQ] = React.useState('');
+  const [loading, setLoading] = React.useState(true);
+  const [exporting, setExporting] = React.useState(false);
+
+  const authedFetch = (url) => fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+
+  const load = React.useCallback(async () => {
+    setLoading(true);
+    const [stockRes, ordersRes] = await Promise.all([
+      fetch('/api/stock').then(r => r.json()),
+      authedFetch(`/api/admin/orders?page=${page}&q=${encodeURIComponent(q)}`).then(r => r.json()),
+    ]);
+    setStock(stockRes);
+    setOrders(ordersRes.orders || []);
+    setTotal(ordersRes.total || 0);
+    setLoading(false);
+  }, [page, q, token]);
+
+  React.useEffect(() => { load(); }, [load]);
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const res = await authedFetch('/api/admin/export');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'numeros-vendidos.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  return (
+    <div style={{maxWidth:1000,margin:'0 auto',padding:'40px 24px'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24}}>
+        <div>
+          <h1 style={{fontFamily:'var(--font-display)',fontSize:26,fontWeight:700,color:'var(--silver-100)'}}>Panel de admin</h1>
+          <p style={{fontSize:13,color:'var(--silver-500)'}}>{email}</p>
+        </div>
+        <button className="ghost-btn" onClick={onLogout}>Cerrar sesión</button>
+      </div>
+
+      <StockCards stock={stock}/>
+
+      <div className="card">
+        <div style={{display:'flex',gap:10,marginBottom:16,flexWrap:'wrap'}}>
+          <input
+            className="input-field" style={{maxWidth:280}}
+            placeholder="Buscar por número o correo"
+            value={q}
+            onChange={e => { setQ(e.target.value); setPage(1); }}
+          />
+          <button className="ghost-btn" onClick={handleExport} disabled={exporting}>
+            {exporting ? 'Exportando…' : 'Exportar CSV'}
+          </button>
+        </div>
+
+        {loading ? (
+          <p style={{color:'var(--silver-500)',fontSize:13}}>Cargando…</p>
+        ) : (
+          <div style={{overflowX:'auto'}}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Números</th><th>Correo</th><th>Cantidad</th><th>Monto</th><th>Método</th><th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map(o => (
+                  <tr key={o.id}>
+                    <td>{(o.raffle_numbers || []).map(n => n.number).join(', ')}</td>
+                    <td>{o.email}</td>
+                    <td>{o.qty}</td>
+                    <td>{formatCLP(o.amount_clp)}</td>
+                    <td>{o.payment_method}</td>
+                    <td>{new Date(o.created_at).toLocaleString('es-CL')}</td>
+                  </tr>
+                ))}
+                {orders.length === 0 && (
+                  <tr><td colSpan={6} style={{color:'var(--silver-500)'}}>Sin resultados.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:16}}>
+          <span style={{fontSize:12,color:'var(--silver-500)'}}>{total} órdenes en total</span>
+          <div style={{display:'flex',gap:8}}>
+            <button className="ghost-btn" disabled={page<=1} onClick={()=>setPage(p=>p-1)}>Anterior</button>
+            <button className="ghost-btn" disabled={page*50>=total} onClick={()=>setPage(p=>p+1)}>Siguiente</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [session, setSession] = React.useState(null);
+
+  React.useEffect(() => {
+    sb.auth.getSession().then(({ data }) => {
+      if (data.session) setSession({ token: data.session.access_token, email: data.session.user.email });
+    });
+  }, []);
+
+  if (!session) {
+    return <LoginForm onLogin={(token, email) => setSession({ token, email })}/>;
+  }
+  return (
+    <Dashboard
+      token={session.token}
+      email={session.email}
+      onLogout={() => { sb.auth.signOut(); setSession(null); }}
+    />
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

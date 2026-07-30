@@ -898,7 +898,36 @@ function TrustSection() {
 }
 
 /* ── Footer ── */
-function Footer() {
+function TermsModal({ open, onClose }) {
+  if (!open) return null;
+  return (
+    <div
+      style={{position:'fixed',inset:0,zIndex:300,background:'rgba(0,0,0,.8)',backdropFilter:'blur(8px)',WebkitBackdropFilter:'blur(8px)',display:'flex',alignItems:'center',justifyContent:'center',padding:16}}
+      onClick={e=>e.target===e.currentTarget&&onClose()}
+    >
+      <div style={{background:'var(--bg-surface)',borderRadius:16,border:'1px solid rgba(255,255,255,.09)',boxShadow:'0 24px 80px rgba(0,0,0,.6)',width:'100%',maxWidth:640,maxHeight:'85vh',overflowY:'auto',position:'relative'}}>
+        <div style={{height:3,background:'var(--grad-gold)',borderRadius:'16px 16px 0 0'}}/>
+        <button onClick={onClose} style={{position:'absolute',top:16,right:16,width:32,height:32,borderRadius:'50%',background:'rgba(255,255,255,.06)',border:'none',color:'var(--silver-400)',fontSize:16,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+        <div style={{padding:'32px 32px 36px'}}>
+          <h3 style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:'var(--fs-h3)',color:'var(--silver-100)',marginBottom:6}}>Términos y condiciones</h3>
+          <p style={{fontSize:12,color:'var(--gold-400)',marginBottom:20,lineHeight:1.5}}>
+            Borrador — pendiente de revisión legal y notarial antes del sorteo. Este texto no reemplaza las bases legales oficiales.
+          </p>
+          <div style={{fontSize:13,color:'var(--silver-300)',lineHeight:1.7,display:'flex',flexDirection:'column',gap:14}}>
+            <p><strong style={{color:'var(--silver-100)'}}>1. Mecánica.</strong> Cada participación comprada asigna un número único al comprador. Los números se asignan en el momento de confirmarse el pago y no pueden duplicarse ni transferirse a otro sorteo.</p>
+            <p><strong style={{color:'var(--silver-100)'}}>2. Elegibilidad.</strong> Pueden participar personas mayores de 18 años, residentes en Chile, que completen la compra con un correo válido.</p>
+            <p><strong style={{color:'var(--silver-100)'}}>3. Sorteo.</strong> El sorteo se realizará ante notario público, con transmisión en vivo, en la fecha publicada en el sitio. El resultado quedará registrado en un acta notarial.</p>
+            <p><strong style={{color:'var(--silver-100)'}}>4. Premio.</strong> El premio es un Chevrolet Silverado Z71, entregado con toda su documentación al día (padrón, permiso de circulación, revisión técnica). No es canjeable por dinero salvo acuerdo expreso con el ganador.</p>
+            <p><strong style={{color:'var(--silver-100)'}}>5. Pagos.</strong> Todas las compras son finales. Ante un error de cobro o duplicidad, contáctanos para revisar el caso.</p>
+            <p><strong style={{color:'var(--silver-100)'}}>6. Datos personales.</strong> El correo y los datos de contacto se usan únicamente para confirmar tu participación y notificarte del resultado del sorteo.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Footer({ onTerms }) {
   return (
     <footer style={{
       borderTop:'1px solid rgba(255,255,255,.06)',
@@ -911,7 +940,12 @@ function Footer() {
         fontSize:'var(--fs-xs)',marginBottom:'var(--space-4)',
       }}>
         {['Bases legales','Términos y condiciones','Política de privacidad','Contacto'].map(l=>(
-          <a key={l} href="#" style={{color:'var(--silver-700)',textDecoration:'none'}}>{l}</a>
+          <a
+            key={l}
+            href="#"
+            onClick={e=>{ if(l==='Términos y condiciones'){ e.preventDefault(); onTerms(); } }}
+            style={{color:'var(--silver-700)',textDecoration:'none'}}
+          >{l}</a>
         ))}
       </div>
       <div style={{fontSize:'var(--fs-xs)',color:'var(--silver-700)'}}>
@@ -978,10 +1012,17 @@ function PurchaseModal({ open, onClose }) {
   const [authLoading,setAuthLoading] = React.useState(false);
   const [payLoading,setPayLoading]   = React.useState(false);
   const [payMethod,setPayMethod]     = React.useState('webpay');
-  const ticket = React.useMemo(()=>String(Math.floor(Math.random()*89999+10000)),[]);
+  const [payError,setPayError]       = React.useState('');
+  const [remaining,setRemaining]     = React.useState(null);
+  const [result,setResult]           = React.useState(null); // { orderId, numbers }
 
   React.useEffect(()=>{
-    if(!open){ setTimeout(()=>{ setStep(0);setQty(10);setEmail('');setEmailErr('');setUserName(''); },300); }
+    if(!open) return;
+    fetch('/api/stock').then(r=>r.json()).then(d=>setRemaining(d.remaining)).catch(()=>{});
+  },[open]);
+
+  React.useEffect(()=>{
+    if(!open){ setTimeout(()=>{ setStep(0);setQty(10);setEmail('');setEmailErr('');setUserName('');setPayError('');setResult(null); },300); }
   },[open]);
 
   if (!open) return null;
@@ -1001,9 +1042,32 @@ function PurchaseModal({ open, onClose }) {
     setUserName(name); setStep(2);
   };
 
-  const handlePay = () => {
+  const handlePay = async () => {
     setPayLoading(true);
-    setTimeout(()=>{ setPayLoading(false); setStep(3); },1800);
+    setPayError('');
+    try {
+      const res = await fetch('/api/orders/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email || 'usuario@gmail.com', qty, paymentMethod: payMethod }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.error === 'insufficient_stock') {
+          setRemaining(data.remaining);
+          setPayError(`Solo quedan ${data.remaining} participaciones disponibles. Ajusta la cantidad.`);
+        } else {
+          setPayError('No pudimos procesar tu pago. Intenta de nuevo.');
+        }
+        return;
+      }
+      setResult({ orderId: data.orderId, numbers: data.numbers });
+      setStep(3);
+    } catch {
+      setPayError('No pudimos conectar con el servidor. Intenta de nuevo.');
+    } finally {
+      setPayLoading(false);
+    }
   };
 
   const payMethods = [
@@ -1072,17 +1136,24 @@ function PurchaseModal({ open, onClose }) {
                 </div>
 
                 {/* Stepper + total */}
-                <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:24}}>
+                <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:8}}>
                   <div style={{display:'flex',borderRadius:8,overflow:'hidden'}}>
                     <button onClick={()=>setQty(q=>Math.max(1,q-1))} style={{width:36,height:36,background:'var(--bg-elevated)',border:'1px solid rgba(255,255,255,.12)',borderRadius:'8px 0 0 8px',color:'var(--silver-100)',fontSize:18,cursor:'pointer',fontFamily:'var(--font-body)'}}>−</button>
                     <div style={{width:48,height:36,display:'flex',alignItems:'center',justifyContent:'center',background:'var(--bg-elevated)',borderTop:'1px solid rgba(255,255,255,.12)',borderBottom:'1px solid rgba(255,255,255,.12)',color:'var(--silver-100)',fontWeight:700,fontSize:14,fontVariantNumeric:'tabular-nums'}}>{qty}</div>
-                    <button onClick={()=>setQty(q=>q+1)} style={{width:36,height:36,background:'var(--bg-elevated)',border:'1px solid rgba(255,255,255,.12)',borderRadius:'0 8px 8px 0',color:'var(--silver-100)',fontSize:18,cursor:'pointer',fontFamily:'var(--font-body)'}}>+</button>
+                    <button
+                      onClick={()=>setQty(q=>remaining!=null ? Math.min(remaining,q+1) : q+1)}
+                      disabled={remaining!=null && qty>=remaining}
+                      style={{width:36,height:36,background:'var(--bg-elevated)',border:'1px solid rgba(255,255,255,.12)',borderRadius:'0 8px 8px 0',color:'var(--silver-100)',fontSize:18,cursor:'pointer',fontFamily:'var(--font-body)'}}
+                    >+</button>
                   </div>
                   <div>
                     <span style={{fontSize:13,color:'var(--silver-500)'}}>A pagar: </span>
                     <span style={{fontSize:'1.2rem',fontWeight:800,color:'var(--silver-100)',fontVariantNumeric:'tabular-nums'}}>${(qty*3000).toLocaleString('es-CL')}</span>
                   </div>
                 </div>
+                {remaining!=null && (
+                  <p style={{fontSize:11,color:'var(--silver-700)',marginBottom:16}}>{remaining.toLocaleString('es-CL')} participaciones disponibles</p>
+                )}
 
                 <button onClick={handleContinueQty} style={{width:'100%',height:48,borderRadius:10,border:'none',background:'var(--gold-400)',color:'#0A0A0B',fontWeight:700,fontSize:'var(--fs-body)',cursor:'pointer',fontFamily:'var(--font-body)',transition:'filter .15s'}}>
                   Continuar →
@@ -1163,6 +1234,9 @@ function PurchaseModal({ open, onClose }) {
                   ))}
                 </div>
 
+                {payError && (
+                  <p style={{fontSize:12,color:'var(--danger)',marginBottom:12,lineHeight:1.5}}>{payError}</p>
+                )}
                 <div style={{display:'flex',flexDirection:'column',gap:8}}>
                   <button onClick={handlePay} disabled={payLoading} style={{width:'100%',height:48,borderRadius:10,border:'none',background:'var(--gold-400)',color:'#0A0A0B',fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:'var(--font-body)',opacity:payLoading?.7:1}}>
                     {payLoading?'Procesando…':`Pagar $${(qty*3000).toLocaleString('es-CL')} →`}
@@ -1182,8 +1256,12 @@ function PurchaseModal({ open, onClose }) {
                 <h3 style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:'var(--fs-h3)',color:'var(--silver-100)',marginBottom:8}}>¡Ya estás participando!</h3>
                 <p style={{fontSize:13,color:'var(--silver-500)',marginBottom:20,lineHeight:1.6}}>Pago procesado exitosamente. Recibirás confirmación por correo.</p>
                 <div style={{background:'var(--bg-elevated)',borderRadius:12,border:'1px solid rgba(212,175,55,.2)',padding:18,marginBottom:16}}>
-                  <div style={{fontSize:11,fontWeight:600,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--silver-500)',marginBottom:8}}>Tu número de participación</div>
-                  <div style={{fontFamily:'var(--font-mono)',fontSize:'2.4rem',fontWeight:700,letterSpacing:'.04em',lineHeight:1,background:'var(--grad-gold)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text',marginBottom:6}}>#{ticket}</div>
+                  <div style={{fontSize:11,fontWeight:600,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--silver-500)',marginBottom:8}}>
+                    Tu{qty>1?'s':''} número{qty>1?'s':''} de participación
+                  </div>
+                  <div style={{fontFamily:'var(--font-mono)',fontSize:qty>1?'1.5rem':'2.4rem',fontWeight:700,letterSpacing:'.04em',lineHeight:1.3,background:'var(--grad-gold)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text',marginBottom:6}}>
+                    {(result?.numbers || []).map(n=>`#${n}`).join(qty>1?', ':'')}
+                  </div>
                   <div style={{fontSize:11,color:'var(--silver-700)'}}>{qty} participaci{qty===1?'ón':'ones'} · ${(qty*3000).toLocaleString('es-CL')} CLP</div>
                 </div>
                 <button onClick={onClose} style={{width:'100%',height:48,borderRadius:10,border:'none',background:'var(--gold-400)',color:'#0A0A0B',fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:'var(--font-body)'}}>Cerrar</button>
@@ -1200,6 +1278,7 @@ function PurchaseModal({ open, onClose }) {
 function App() {
   const [modalOpen, setModalOpen] = React.useState(false);
   const [lightbox, setLightbox] = React.useState(null);
+  const [termsOpen, setTermsOpen] = React.useState(false);
   return (
     <>
       <Header onBuy={()=>setModalOpen(true)}/>
@@ -1215,9 +1294,10 @@ function App() {
         <TicketDivider/>
         <TrustSection/>
       </main>
-      <Footer/>
+      <Footer onTerms={()=>setTermsOpen(true)}/>
       <PurchaseModal open={modalOpen} onClose={()=>setModalOpen(false)}/>
       <Lightbox src={lightbox} onClose={()=>setLightbox(null)}/>
+      <TermsModal open={termsOpen} onClose={()=>setTermsOpen(false)}/>
     </>
   );
 }
