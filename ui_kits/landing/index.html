@@ -280,8 +280,17 @@ function Header({ onBuy }) {
 }
 
 /* ── Hero ── */
-function Hero({ onBuy }) {
+function Hero({ onBuy, stockRefresh }) {
   const drawDate = new Date(Date.now() + 18*86400000 + 7*3600000).toISOString();
+  const [stock, setStock] = React.useState({ sold: 0, total: 25000 });
+
+  React.useEffect(() => {
+    fetch('/api/stock')
+      .then(r => r.json())
+      .then(d => setStock({ sold: d.sold, total: d.total }))
+      .catch(() => {});
+  }, [stockRefresh]);
+
   return (
     <section style={{
       position:'relative',
@@ -397,7 +406,7 @@ function Hero({ onBuy }) {
         margin:'var(--space-12) auto 0',
         padding:'0 var(--space-6)',
       }}>
-        <ProgressBar sold={3420} total={5000}/>
+        <ProgressBar sold={stock.sold} total={stock.total}/>
       </div>
     </section>
   );
@@ -1003,7 +1012,7 @@ function ModalStepsSidebar({ current }) {
 }
 
 /* ── Purchase Modal ── */
-function PurchaseModal({ open, onClose }) {
+function PurchaseModal({ open, onClose, onPurchased }) {
   const [step,setStep]           = React.useState(0);
   const [qty,setQty]             = React.useState(10);
   const [userName,setUserName]   = React.useState('');
@@ -1063,6 +1072,7 @@ function PurchaseModal({ open, onClose }) {
       }
       setResult({ orderId: data.orderId, numbers: data.numbers });
       setStep(3);
+      onPurchased && onPurchased();
     } catch {
       setPayError('No pudimos conectar con el servidor. Intenta de nuevo.');
     } finally {
@@ -1279,11 +1289,12 @@ function App() {
   const [modalOpen, setModalOpen] = React.useState(false);
   const [lightbox, setLightbox] = React.useState(null);
   const [termsOpen, setTermsOpen] = React.useState(false);
+  const [stockVersion, setStockVersion] = React.useState(0);
   return (
     <>
       <Header onBuy={()=>setModalOpen(true)}/>
       <main>
-        <Hero onBuy={()=>setModalOpen(true)}/>
+        <Hero onBuy={()=>setModalOpen(true)} stockRefresh={stockVersion}/>
         <HowItWorks/>
         <TicketDivider/>
         <ParticipationSection onBuy={()=>setModalOpen(true)}/>
@@ -1295,7 +1306,7 @@ function App() {
         <TrustSection/>
       </main>
       <Footer onTerms={()=>setTermsOpen(true)}/>
-      <PurchaseModal open={modalOpen} onClose={()=>setModalOpen(false)}/>
+      <PurchaseModal open={modalOpen} onClose={()=>setModalOpen(false)} onPurchased={()=>setStockVersion(v=>v+1)}/>
       <Lightbox src={lightbox} onClose={()=>setLightbox(null)}/>
       <TermsModal open={termsOpen} onClose={()=>setTermsOpen(false)}/>
     </>
